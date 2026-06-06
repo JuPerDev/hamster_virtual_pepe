@@ -963,6 +963,9 @@ const HamsterPet = (() => {
     activeDraggedFood.style.top = (rect.top) + 'px';
     activeDraggedFood.style.right = 'auto';
     activeDraggedFood.style.bottom = 'auto';
+
+    // Cancel the foods hiding countdown when user drags one
+    clearTimeout(state._foodHideTimer);
   }
 
   // Check collision with hamster to open mouth
@@ -1028,11 +1031,15 @@ const HamsterPet = (() => {
         showBubble('¡Ya estoy llenito, chicas! 🐹');
         speak('Ya estoy llenito, chicas');
         resetFoodPosition(foodEl);
+        // Wait 3 seconds and hide all
+        state._foodHideTimer = setTimeout(hideFoods, 3000);
       } else {
         feedFromDrag(foodEl.dataset.food, foodEl);
       }
     } else {
       resetFoodPosition(foodEl);
+      // Auto-hide in 4 seconds if dropped without feeding
+      state._foodHideTimer = setTimeout(hideFoods, 4000);
     }
   }
 
@@ -1072,6 +1079,8 @@ const HamsterPet = (() => {
       updateIdleState();
       foodEl.style.display = 'flex';
       resetFoodPosition(foodEl);
+      // Wait 3 seconds, then hide all foods
+      state._foodHideTimer = setTimeout(hideFoods, 3000);
     }, 2500);
 
     updateStatsUI();
@@ -1086,9 +1095,9 @@ const HamsterPet = (() => {
 
     const sceneRect = els.hamsterScene.getBoundingClientRect();
     
-    let offsetLeft = 10;
-    if (foodEl.dataset.food === 'carrot') offsetLeft = 55;
-    else if (foodEl.dataset.food === 'cheese') offsetLeft = 100;
+    let offsetLeft = 50;
+    if (foodEl.dataset.food === 'carrot') offsetLeft = 120;
+    else if (foodEl.dataset.food === 'cheese') offsetLeft = 190;
 
     const targetLeft = sceneRect.left + offsetLeft;
     const targetTop = sceneRect.bottom - 70;
@@ -1108,12 +1117,22 @@ const HamsterPet = (() => {
   }
 
   function onFeedBtnClick() {
+    // Clear any previous hide timer
+    clearTimeout(state._foodHideTimer);
+
     const foodEls = document.querySelectorAll('.draggable-food');
     foodEls.forEach((foodEl, idx) => {
+      foodEl.style.display = 'flex';
+      foodEl.style.opacity = '0';
       foodEl.classList.remove('hint');
-      void foodEl.offsetWidth;
-      foodEl.classList.add('hint');
       
+      // Animate entry (fade-in & bounce up)
+      foodEl.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+      void foodEl.offsetWidth; // force reflow
+      foodEl.style.opacity = '1';
+      foodEl.classList.add('hint');
+
+      // Make them pulse sequentially
       foodEl.animate([
         { transform: 'scale(1)' },
         { transform: 'scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
@@ -1124,8 +1143,24 @@ const HamsterPet = (() => {
         iterations: 2
       });
     });
-    
+
+    // Auto-hide foods in 10 seconds of inactivity
+    state._foodHideTimer = setTimeout(hideFoods, 10000);
+
     showBubble('¡Arrastra la comida a mi boquita para alimentarme! 🌻🥕🧀', 4000);
+  }
+
+  function hideFoods() {
+    const foodEls = document.querySelectorAll('.draggable-food');
+    foodEls.forEach(foodEl => {
+      if (foodEl.style.display !== 'none') {
+        foodEl.style.transition = 'opacity 0.5s ease';
+        foodEl.style.opacity = '0';
+        setTimeout(() => {
+          foodEl.style.display = 'none';
+        }, 500);
+      }
+    });
   }
 
   function hideBall() {
