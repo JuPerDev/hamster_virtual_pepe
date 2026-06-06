@@ -198,8 +198,8 @@ const HamsterPet = (() => {
       // Ball
       ball: document.getElementById('throwable-ball'),
       hamsterScene: document.querySelector('.hamster-scene'),
-      // Seed
-      seed: document.getElementById('draggable-seed'),
+      // Foods
+      foods: document.querySelectorAll('.draggable-food'),
       // Chat & AI
       chatInput: document.getElementById('chat-input'),
       chatSend: document.getElementById('chat-send'),
@@ -439,25 +439,28 @@ const HamsterPet = (() => {
       return;
     }
 
-    state.currentAction = 'playing';
-    animateHamster('happy', 3000);
-    say('playing');
-    spawnParticles('⭐', 6);
-    disableButtons(3000);
+    // Show the ball!
+    const ballEl = els.ball;
+    if (ballEl) {
+      ballEl.style.display = 'block';
+      ballEl.style.opacity = '0';
+      ballEl.classList.remove('hint');
+      
+      // Animate entry (fade-in & bounce up)
+      ballEl.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+      void ballEl.offsetWidth; // force reflow
+      ballEl.style.opacity = '1';
+      ballEl.classList.add('hint');
+      
+      // Clear any previous hide timer
+      clearTimeout(state._ballHideTimer);
+      
+      // Auto-hide if they don't play in 10 seconds
+      state._ballHideTimer = setTimeout(hideBall, 10000);
+    }
 
-    state.stats.happiness = Math.min(100, state.stats.happiness + 20);
-    state.stats.energy = Math.max(0, state.stats.energy - 15);
-    state.stats.hunger = Math.max(0, state.stats.hunger - 8);
-    state.stats.cleanliness = Math.max(0, state.stats.cleanliness - 5);
-
-    setTimeout(() => {
-      state.currentAction = null;
-      updateIdleState();
-    }, 3000);
-
-    updateStatsUI();
-    updateMood();
-    saveState();
+    showBubble('¡Lánzame la pelota, chicas! 🎾', 4000);
+    animateHamster('happy', 1500);
   }
 
   function sleep() {
@@ -650,6 +653,9 @@ const HamsterPet = (() => {
     if (ball.isFlying) return;
     e.preventDefault();
     e.target.setPointerCapture(e.pointerId);
+    
+    // Cancel the ball hiding countdown when user drags it
+    clearTimeout(state._ballHideTimer);
 
     const ballEl = els.ball;
     const rect = ballEl.getBoundingClientRect();
@@ -732,8 +738,9 @@ const HamsterPet = (() => {
       ballEl.classList.add('flying');
       animateBallFlight();
     } else {
-      // Not enough speed — return to origin
+      // Not enough speed — return to origin and auto-hide
       resetBallPosition();
+      state._ballHideTimer = setTimeout(hideBall, 4000);
     }
   }
 
@@ -839,8 +846,11 @@ const HamsterPet = (() => {
     updateMood();
     saveState();
 
-    // Return ball after a moment
-    setTimeout(resetBallPosition, 900);
+    // Return ball after a moment and auto-hide
+    setTimeout(() => {
+      resetBallPosition();
+      state._ballHideTimer = setTimeout(hideBall, 3000);
+    }, 900);
   }
 
   function onBallMiss() {
@@ -852,8 +862,11 @@ const HamsterPet = (() => {
     say('ballMiss');
     animateHamster('bounce', 600);
 
-    // Return ball
-    setTimeout(resetBallPosition, 1200);
+    // Return ball and auto-hide
+    setTimeout(() => {
+      resetBallPosition();
+      state._ballHideTimer = setTimeout(hideBall, 3000);
+    }, 1200);
   }
 
   function resetBallPosition() {
@@ -894,10 +907,11 @@ const HamsterPet = (() => {
   }
 
   // ========================================
-  //  DRAGGABLE SEED FOOD SYSTEM
+  //  DRAGGABLE FOODS SYSTEM
   // ========================================
 
-  const seed = {
+  let activeDraggedFood = null;
+  const foodDragState = {
     isDragging: false,
     startX: 0,
     startY: 0,
@@ -905,71 +919,71 @@ const HamsterPet = (() => {
     currentY: 0,
     lastPointerX: 0,
     lastPointerY: 0,
-    originX: 0,
-    originY: 0,
+    origins: {}
   };
 
-  function initSeed() {
-    const seedEl = els.seed;
-    if (!seedEl) return;
+  function initFoods() {
+    const foodEls = document.querySelectorAll('.draggable-food');
+    foodEls.forEach(el => {
+      foodDragState.origins[el.id] = {
+        left: el.offsetLeft,
+        top: el.offsetTop
+      };
 
-    // Store origin position
-    seed.originX = seedEl.offsetLeft;
-    seed.originY = seedEl.offsetTop;
+      el.addEventListener('pointerdown', onFoodPointerDown);
+    });
 
-    // Pointer events for drag
-    seedEl.addEventListener('pointerdown', onSeedPointerDown);
-    document.addEventListener('pointermove', onSeedPointerMove);
-    document.addEventListener('pointerup', onSeedPointerUp);
-    document.addEventListener('pointercancel', onSeedPointerUp);
+    document.addEventListener('pointermove', onFoodPointerMove);
+    document.addEventListener('pointerup', onFoodPointerUp);
+    document.addEventListener('pointercancel', onFoodPointerUp);
   }
 
-  function onSeedPointerDown(e) {
+  function onFoodPointerDown(e) {
     if (state.currentAction) return;
     e.preventDefault();
     e.target.setPointerCapture(e.pointerId);
 
-    const seedEl = els.seed;
-    const rect = seedEl.getBoundingClientRect();
+    activeDraggedFood = e.currentTarget;
+    const rect = activeDraggedFood.getBoundingClientRect();
 
-    seed.isDragging = true;
-    seed.startX = rect.left + rect.width / 2;
-    seed.startY = rect.top + rect.height / 2;
-    seed.currentX = seed.startX;
-    seed.currentY = seed.startY;
-    seed.lastPointerX = e.clientX;
-    seed.lastPointerY = e.clientY;
+    foodDragState.isDragging = true;
+    foodDragState.startX = rect.left + rect.width / 2;
+    foodDragState.startY = rect.top + rect.height / 2;
+    foodDragState.currentX = foodDragState.startX;
+    foodDragState.currentY = foodDragState.startY;
+    foodDragState.lastPointerX = e.clientX;
+    foodDragState.lastPointerY = e.clientY;
 
-    seedEl.classList.add('dragging');
-    seedEl.classList.remove('hint');
+    activeDraggedFood.classList.add('dragging');
+    activeDraggedFood.classList.remove('hint');
 
-    // Switch seed to fixed positioning for drag
-    seedEl.style.position = 'fixed';
-    seedEl.style.left = (rect.left) + 'px';
-    seedEl.style.top = (rect.top) + 'px';
-    seedEl.style.right = 'auto';
-    seedEl.style.bottom = 'auto';
+    // Switch food to fixed positioning for drag
+    activeDraggedFood.style.position = 'fixed';
+    activeDraggedFood.style.left = (rect.left) + 'px';
+    activeDraggedFood.style.top = (rect.top) + 'px';
+    activeDraggedFood.style.right = 'auto';
+    activeDraggedFood.style.bottom = 'auto';
   }
 
-  function onSeedPointerMove(e) {
-    if (!seed.isDragging) return;
+  // Check collision with hamster to open mouth
+  function onFoodPointerMove(e) {
+    if (!foodDragState.isDragging || !activeDraggedFood) return;
     e.preventDefault();
 
-    const seedEl = els.seed;
-    const dx = e.clientX - seed.lastPointerX;
-    const dy = e.clientY - seed.lastPointerY;
+    const dx = e.clientX - foodDragState.lastPointerX;
+    const dy = e.clientY - foodDragState.lastPointerY;
 
-    const newLeft = parseFloat(seedEl.style.left) + dx;
-    const newTop = parseFloat(seedEl.style.top) + dy;
+    const newLeft = parseFloat(activeDraggedFood.style.left) + dx;
+    const newTop = parseFloat(activeDraggedFood.style.top) + dy;
 
-    seedEl.style.left = newLeft + 'px';
-    seedEl.style.top = newTop + 'px';
+    activeDraggedFood.style.left = newLeft + 'px';
+    activeDraggedFood.style.top = newTop + 'px';
 
-    seed.lastPointerX = e.clientX;
-    seed.lastPointerY = e.clientY;
+    foodDragState.lastPointerX = e.clientX;
+    foodDragState.lastPointerY = e.clientY;
 
     // Check collision with hamster to open mouth
-    const size = 38;
+    const size = 36;
     const collides = checkHamsterCollision(newLeft, newTop, size);
     if (collides && !state.currentAction) {
       els.hamster.classList.add('mouth-open');
@@ -978,65 +992,86 @@ const HamsterPet = (() => {
     }
 
     // Spawn trail
-    spawnSeedTrail(e.clientX, e.clientY);
+    spawnFoodTrail(e.clientX, e.clientY, activeDraggedFood.dataset.food);
   }
 
-  function spawnSeedTrail(x, y) {
+  function spawnFoodTrail(x, y, foodType) {
     const trail = document.createElement('span');
-    trail.className = 'seed-trail';
+    trail.className = 'food-trail';
+    
+    let color = 'rgba(255, 203, 44, 0.5)';
+    if (foodType === 'carrot') color = 'rgba(255, 133, 44, 0.5)';
+    else if (foodType === 'cheese') color = 'rgba(255, 217, 59, 0.5)';
+
+    trail.style.backgroundColor = color;
     trail.style.left = (x - 4) + 'px';
     trail.style.top = (y - 4) + 'px';
     document.body.appendChild(trail);
     setTimeout(() => trail.remove(), 500);
   }
 
-  function onSeedPointerUp(e) {
-    if (!seed.isDragging) return;
-    seed.isDragging = false;
+  function onFoodPointerUp(e) {
+    if (!foodDragState.isDragging || !activeDraggedFood) return;
+    foodDragState.isDragging = false;
 
-    const seedEl = els.seed;
-    seedEl.classList.remove('dragging');
+    const foodEl = activeDraggedFood;
+    activeDraggedFood = null;
+
+    foodEl.classList.remove('dragging');
     els.hamster.classList.remove('mouth-open');
 
-    const seedRect = seedEl.getBoundingClientRect();
-    const collides = checkHamsterCollision(seedRect.left, seedRect.top, 38);
+    const rect = foodEl.getBoundingClientRect();
+    const collides = checkHamsterCollision(rect.left, rect.top, 36);
 
     if (collides && !state.currentAction) {
-      // Try to feed
       if (state.stats.hunger >= 100) {
         showBubble('¡Ya estoy llenito, chicas! 🐹');
         speak('Ya estoy llenito, chicas');
-        resetSeedPosition();
+        resetFoodPosition(foodEl);
       } else {
-        // Feed!
-        feedFromDrag();
+        feedFromDrag(foodEl.dataset.food, foodEl);
       }
     } else {
-      // Return seed to origin
-      resetSeedPosition();
+      resetFoodPosition(foodEl);
     }
   }
 
-  function feedFromDrag() {
-    // Hide seed during eating animation
-    els.seed.style.display = 'none';
+  function feedFromDrag(foodType, foodEl) {
+    foodEl.style.display = 'none';
 
     state.currentAction = 'eating';
     animateHamster('eating', 2500);
+    
+    let emoji = '🌻';
+    let hungerGain = 25;
+    let happinessGain = 5;
+    let cleanlinessLoss = 3;
+
+    if (foodType === 'carrot') {
+      emoji = '🥕';
+      hungerGain = 20;
+      happinessGain = 8;
+      cleanlinessLoss = 1;
+    } else if (foodType === 'cheese') {
+      emoji = '🧀';
+      hungerGain = 30;
+      happinessGain = 12;
+      cleanlinessLoss = 6;
+    }
+
     say('eating');
-    spawnParticles('🌻', 6);
+    spawnParticles(emoji, 6);
     disableButtons(2500);
 
-    state.stats.hunger = Math.min(100, state.stats.hunger + 25);
-    state.stats.happiness = Math.min(100, state.stats.happiness + 5);
-    state.stats.cleanliness = Math.max(0, state.stats.cleanliness - 3);
+    state.stats.hunger = Math.min(100, state.stats.hunger + hungerGain);
+    state.stats.happiness = Math.min(100, state.stats.happiness + happinessGain);
+    state.stats.cleanliness = Math.max(0, state.stats.cleanliness - cleanlinessLoss);
 
     setTimeout(() => {
       state.currentAction = null;
       updateIdleState();
-      // Bring back and reset seed position
-      els.seed.style.display = 'flex';
-      resetSeedPosition();
+      foodEl.style.display = 'flex';
+      resetFoodPosition(foodEl);
     }, 2500);
 
     updateStatsUI();
@@ -1044,52 +1079,63 @@ const HamsterPet = (() => {
     saveState();
   }
 
-  function resetSeedPosition() {
-    const seedEl = els.seed;
-    seedEl.classList.remove('dragging');
-    seed.isDragging = false;
+  function resetFoodPosition(foodEl) {
+    foodEl.classList.remove('dragging');
+    
+    foodEl.style.transition = 'left 0.5s cubic-bezier(0.34,1.56,0.64,1), top 0.5s cubic-bezier(0.34,1.56,0.64,1), position 0s';
 
-    // Animate return
-    seedEl.style.transition = 'left 0.5s cubic-bezier(0.34,1.56,0.64,1), top 0.5s cubic-bezier(0.34,1.56,0.64,1), position 0s';
-
-    // Get scene rect to place seed back
     const sceneRect = els.hamsterScene.getBoundingClientRect();
-    const targetLeft = sceneRect.left + 10;
+    
+    let offsetLeft = 10;
+    if (foodEl.dataset.food === 'carrot') offsetLeft = 55;
+    else if (foodEl.dataset.food === 'cheese') offsetLeft = 100;
+
+    const targetLeft = sceneRect.left + offsetLeft;
     const targetTop = sceneRect.bottom - 70;
 
-    seedEl.style.left = targetLeft + 'px';
-    seedEl.style.top = targetTop + 'px';
+    foodEl.style.left = targetLeft + 'px';
+    foodEl.style.top = targetTop + 'px';
 
     setTimeout(() => {
-      // Return to absolute positioning in scene
-      seedEl.style.transition = '';
-      seedEl.style.position = 'absolute';
-      seedEl.style.left = '';
-      seedEl.style.top = '';
-      seedEl.style.left = '10px';
-      seedEl.style.bottom = '30px';
-      seedEl.classList.add('hint');
+      foodEl.style.transition = '';
+      foodEl.style.position = 'absolute';
+      foodEl.style.left = '';
+      foodEl.style.top = '';
+      foodEl.style.left = offsetLeft + 'px';
+      foodEl.style.bottom = '30px';
+      foodEl.classList.add('hint');
     }, 550);
   }
 
   function onFeedBtnClick() {
-    const seedEl = els.seed;
-    if (seedEl) {
-      seedEl.classList.remove('hint');
-      void seedEl.offsetWidth; // trigger reflow
-      seedEl.classList.add('hint');
+    const foodEls = document.querySelectorAll('.draggable-food');
+    foodEls.forEach((foodEl, idx) => {
+      foodEl.classList.remove('hint');
+      void foodEl.offsetWidth;
+      foodEl.classList.add('hint');
       
-      // Make it pulse strongly
-      seedEl.animate([
+      foodEl.animate([
         { transform: 'scale(1)' },
-        { transform: 'scale(1.3)', boxShadow: '0 0 20px #ffcb2c' },
+        { transform: 'scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
         { transform: 'scale(1)' }
       ], {
         duration: 800,
+        delay: idx * 150,
         iterations: 2
       });
-      
-      showBubble('¡Arrastra la semilla de girasol a mi boquita para alimentarme! 🌻', 4000);
+    });
+    
+    showBubble('¡Arrastra la comida a mi boquita para alimentarme! 🌻🥕🧀', 4000);
+  }
+
+  function hideBall() {
+    const ballEl = els.ball;
+    if (ballEl && ballEl.style.display !== 'none') {
+      ballEl.style.transition = 'opacity 0.5s ease';
+      ballEl.style.opacity = '0';
+      setTimeout(() => {
+        ballEl.style.display = 'none';
+      }, 500);
     }
   }
 
@@ -1397,7 +1443,7 @@ IMPORTANTE SOBRE RECUERDOS:
 
     // Init ball throw system
     initBall();
-    initSeed();
+    initFoods();
 
     // Ensure voices are loaded
 

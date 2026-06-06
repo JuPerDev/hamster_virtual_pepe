@@ -1351,19 +1351,14 @@ body::before {
 }
 
 /* ========================================
-   Draggable Seed Food
+   Draggable Foods
    ======================================== */
 
-.seed-food {
+.draggable-food {
   position: absolute;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff3ad, #ffcb2c 50%, #d89800);
-  box-shadow:
-    inset -3px -4px 6px rgba(0, 0, 0, 0.25),
-    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
-    0 4px 16px rgba(255, 203, 44, 0.35);
   cursor: grab;
   z-index: 50;
   touch-action: none;
@@ -1376,69 +1371,104 @@ body::before {
   font-size: 20px;
 }
 
-.seed-food:hover {
+.draggable-food.seed-food {
+  background: radial-gradient(circle at 35% 30%, #fff3ad, #ffcb2c 50%, #d89800);
   box-shadow:
-    inset -3px -4px 6px rgba(0, 0, 0, 0.25),
-    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
-    0 4px 24px rgba(255, 203, 44, 0.55);
+    inset -2px -3px 5px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.35),
+    0 4px 12px rgba(255, 203, 44, 0.3);
 }
 
-.seed-food.dragging {
+.draggable-food.carrot-food {
+  background: radial-gradient(circle at 35% 30%, #ffd6ad, #ff852c 50%, #d85000);
+  box-shadow:
+    inset -2px -3px 5px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.35),
+    0 4px 12px rgba(255, 133, 44, 0.3);
+}
+
+.draggable-food.cheese-food {
+  background: radial-gradient(circle at 35% 30%, #fffcaa, #ffd93b 50%, #c29e00);
+  box-shadow:
+    inset -2px -3px 5px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.35),
+    0 4px 12px rgba(255, 217, 59, 0.3);
+}
+
+.draggable-food:hover {
+  transform: scale(1.08);
+}
+
+.draggable-food.seed-food:hover {
+  box-shadow: inset -2px -3px 5px rgba(0, 0, 0, 0.2), inset 2px 2px 5px rgba(255, 255, 255, 0.35), 0 4px 20px rgba(255, 203, 44, 0.5);
+}
+.draggable-food.carrot-food:hover {
+  box-shadow: inset -2px -3px 5px rgba(0, 0, 0, 0.2), inset 2px 2px 5px rgba(255, 255, 255, 0.35), 0 4px 20px rgba(255, 133, 44, 0.5);
+}
+.draggable-food.cheese-food:hover {
+  box-shadow: inset -2px -3px 5px rgba(0, 0, 0, 0.2), inset 2px 2px 5px rgba(255, 255, 255, 0.35), 0 4px 20px rgba(255, 217, 59, 0.5);
+}
+
+.draggable-food.dragging {
   cursor: grabbing;
-  box-shadow:
-    inset -3px -4px 6px rgba(0, 0, 0, 0.25),
-    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
-    0 6px 30px rgba(255, 203, 44, 0.6);
-  transform: scale(1.15);
+  transform: scale(1.2) !important;
 }
 
-/* Seed hint pulse when idle */
-.seed-food.hint {
-  animation: seedHint 2s ease-in-out infinite;
+.draggable-food.seed-food.dragging { box-shadow: 0 8px 25px rgba(255, 203, 44, 0.6); }
+.draggable-food.carrot-food.dragging { box-shadow: 0 8px 25px rgba(255, 133, 44, 0.6); }
+.draggable-food.cheese-food.dragging { box-shadow: 0 8px 25px rgba(255, 217, 59, 0.6); }
+
+/* Food hint pulse when idle */
+.draggable-food.hint {
+  animation: foodHint 2.2s ease-in-out infinite;
 }
 
-@keyframes seedHint {
+.draggable-food.carrot-food.hint {
+  animation-delay: 0.2s;
+}
+
+.draggable-food.cheese-food.hint {
+  animation-delay: 0.4s;
+}
+
+@keyframes foodHint {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); box-shadow:
-    inset -3px -4px 6px rgba(0, 0, 0, 0.25),
-    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
-    0 4px 28px rgba(255, 203, 44, 0.55); }
+  50% { transform: scale(1.08); }
 }
 
-.seed-label {
+.food-label {
   position: absolute;
   bottom: -22px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size: 0.55rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   opacity: 0;
   transition: opacity var(--transition-smooth);
   pointer-events: none;
 }
 
-.seed-food:hover .seed-label,
-.seed-food.hint .seed-label {
+.draggable-food:hover .food-label,
+.draggable-food.hint .food-label {
   opacity: 1;
 }
 
-/* Seed trail particle */
-.seed-trail {
+/* Food trail particle */
+.food-trail {
   position: fixed;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 203, 44, 0.5);
   pointer-events: none;
   z-index: 49;
-  animation: seedTrailFade 0.4s ease-out forwards;
+  animation: foodTrailFade 0.4s ease-out forwards;
 }
 
-@keyframes seedTrailFade {
+@keyframes foodTrailFade {
   0% { opacity: 0.7; transform: scale(1); }
   100% { opacity: 0; transform: scale(0.2); }
 }
@@ -1450,4 +1480,19 @@ body::before {
   border: 2.5px solid #c4634a;
   border-radius: 50%;
   background-color: #8c3b27;
+}
+
+/* ========================================
+   Action Button Micro-Animations
+   ======================================== */
+
+.action-btn:hover .btn-icon {
+  animation: iconBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes iconBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3) rotate(-8deg); }
+  60% { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
 }
