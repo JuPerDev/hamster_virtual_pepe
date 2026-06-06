@@ -7,6 +7,13 @@
   <title>🐹 Mi Hámster Virtual</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/build/three.module.js"
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -49,6 +56,7 @@
     <!-- Hamster Scene -->
     <div class="hamster-scene">
       <div class="hamster idle" id="hamster">
+        <canvas class="hamster-3d-canvas" id="hamster-3d-canvas" aria-hidden="true"></canvas>
         <!-- Body -->
         <div class="hamster-body">
           <div class="hamster-belly"></div>
@@ -60,6 +68,17 @@
           <div class="eye-right"></div>
           <div class="hamster-nose"></div>
           <div class="hamster-mouth"></div>
+          <div class="muzzle"></div>
+          <div class="whiskers whiskers-left">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="whiskers whiskers-right">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <div class="paw-left"></div>
           <div class="paw-right"></div>
           <div class="hamster-tail"></div>
@@ -215,5 +234,6 @@
   </div>
 
   <script src="script.js"></script>
+  <script type="module" src="hamster-3d.js"></script>
 </body>
 </html>
