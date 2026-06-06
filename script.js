@@ -25,6 +25,10 @@ const HamsterPet = (() => {
     memories: [],          // persistent facts the hamster remembers
     isAiEnabled: false,
     isAiThinking: false,
+    // Walking
+    positionX: 0,
+    facingDirection: 1,
+    isWalking: false,
   };
 
   // --- Load saved state ---
@@ -299,6 +303,10 @@ const HamsterPet = (() => {
 
   // --- Hamster Animation ---
   function animateHamster(className, duration = 800) {
+    if (className !== 'idle' && className !== 'walking') {
+      stopWalking();
+    }
+
     els.hamster.classList.remove('idle', 'bounce', 'happy', 'eating', 'sleeping', 'catching');
     void els.hamster.offsetWidth; // Force reflow
     els.hamster.classList.add(className);
@@ -398,6 +406,52 @@ const HamsterPet = (() => {
     }
   }
 
+  // --- Hamster Walking Logic ---
+  function updateHamsterTransform() {
+    if (!els.hamster) return;
+    els.hamster.style.transform = `translateX(${state.positionX}px) scaleX(${state.facingDirection})`;
+  }
+
+  function startWalking() {
+    if (state.currentAction || state.isSpeaking || state.isAiThinking) return;
+
+    // Pick a random target position between -60 and 60 pixels
+    const targetX = (Math.random() * 120) - 60;
+
+    // Flip direction: scaleX = -1 if walking to the right, scaleX = 1 if walking to the left
+    const movingRight = targetX > state.positionX;
+    state.facingDirection = movingRight ? -1 : 1;
+    state.positionX = targetX;
+    state.isWalking = true;
+
+    if (els.hamster) {
+      els.hamster.classList.remove('idle');
+      els.hamster.classList.add('walking');
+      updateHamsterTransform();
+
+      // Walking travel duration is 1.2 seconds (matches transition in CSS)
+      clearTimeout(state._walkTimer);
+      state._walkTimer = setTimeout(() => {
+        state.isWalking = false;
+        if (els.hamster) {
+          els.hamster.classList.remove('walking');
+          updateIdleState();
+        }
+      }, 1200);
+    }
+  }
+
+  function stopWalking() {
+    state.isWalking = false;
+    state.positionX = 0;
+    state.facingDirection = 1;
+    clearTimeout(state._walkTimer);
+    if (els.hamster) {
+      els.hamster.classList.remove('walking');
+      updateHamsterTransform();
+    }
+  }
+
   // --- Actions ---
   function disableButtons(ms) {
     const btns = [els.feedBtn, els.playBtn, els.sleepBtn, els.cleanBtn, els.petBtn, els.talkBtn];
@@ -438,6 +492,8 @@ const HamsterPet = (() => {
       speak('Chicas, estoy muy cansadito');
       return;
     }
+
+    stopWalking();
 
     // Show the ball!
     const ballEl = els.ball;
@@ -575,6 +631,11 @@ const HamsterPet = (() => {
       if (hunger < 20) say('hungry');
       else if (energy < 15) say('tired');
       else if (Math.random() < 0.3) say('idle');
+    }
+
+    // Random horizontal walk when idle, not speaking, and not thinking
+    if (Math.random() < 0.25 && !state.currentAction && !state.isSpeaking && !state.isAiThinking && state.stats.energy >= 15) {
+      startWalking();
     }
 
     saveState();
@@ -1117,6 +1178,8 @@ const HamsterPet = (() => {
   }
 
   function onFeedBtnClick() {
+    stopWalking();
+
     // Clear any previous hide timer
     clearTimeout(state._foodHideTimer);
 
