@@ -70,7 +70,7 @@ const state = {
   actionTime: 0,
 };
 
-const MODEL_FRONT_Y = Math.PI;
+const MODEL_FRONT_Y = 0;
 
 const classToState = () => {
   if (hamster.classList.contains('sleeping')) return 'sleeping';
