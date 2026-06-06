@@ -60,10 +60,10 @@ scene.add(shadow);
 
 const clock = new THREE.Clock();
 const loader = new GLTFLoader();
-let mixer = null;
 let loadedModel = null;
 let rafId = 0;
 let visible = true;
+let baseY = 0;
 
 const state = {
   current: 'idle',
@@ -103,7 +103,8 @@ function normalizeModel(model) {
   model.position.x -= normalizedCenter.x;
   model.position.y -= normalizedCenter.y;
   model.position.z -= normalizedCenter.z;
-  modelPivot.position.y = -0.08 + Math.max(0, 1.5 - normalizedSize.y) * 0.1;
+  baseY = -0.08 + Math.max(0, 1.5 - normalizedSize.y) * 0.1;
+  modelPivot.position.y = baseY;
 }
 
 function prepareMaterials(model) {
@@ -131,42 +132,44 @@ function animateModel(delta, elapsed) {
   state.actionTime += delta;
 
   const t = state.actionTime;
-  const idleBob = Math.sin(elapsed * 2.2) * 0.035;
-  const idleTurn = Math.sin(elapsed * 1.35) * 0.08;
+  const idleBob = Math.sin(elapsed * 1.8) * 0.018;
+  const idleTurn = Math.sin(elapsed * 0.85) * 0.035;
 
   root.position.set(0, idleBob, 0);
   root.rotation.set(0, idleTurn, 0);
   root.scale.setScalar(1);
-  modelPivot.rotation.set(0, Math.PI, 0);
+  modelPivot.position.y = baseY;
+  modelPivot.rotation.set(0, 0, 0);
 
-  shadow.scale.set(1.25 + idleBob * 1.8, 0.42 + idleBob * 0.35, 1);
-  shadow.material.opacity = 0.24 - idleBob * 0.8;
+  shadow.scale.set(1.2 + idleBob * 1.2, 0.4, 1);
+  shadow.material.opacity = 0.22 - idleBob * 0.4;
 
   if (state.current === 'walking') {
-    root.position.y = Math.sin(t * 13) * 0.055;
-    root.rotation.z = Math.sin(t * 10) * 0.12;
-    root.rotation.y = Math.sin(t * 8) * 0.18;
-    shadow.scale.set(1.28, 0.36, 1);
+    root.position.y = Math.sin(t * 8) * 0.025;
+    root.rotation.z = Math.sin(t * 6) * 0.035;
+    root.rotation.y = idleTurn + Math.sin(t * 5) * 0.045;
+    shadow.scale.set(1.22, 0.38, 1);
   } else if (state.current === 'happy' || state.current === 'catching') {
-    const hop = Math.max(0, Math.sin(t * 10)) * 0.22;
+    const hop = Math.max(0, Math.sin(t * 7)) * 0.075;
     root.position.y = hop;
-    root.rotation.z = Math.sin(t * 11) * 0.18;
-    root.rotation.y = Math.sin(t * 8) * 0.3;
-    root.scale.set(1 + hop * 0.28, 1 - hop * 0.1, 1 + hop * 0.12);
-    shadow.scale.set(1.1 + hop * 0.55, 0.34 + hop * 0.2, 1);
-    shadow.material.opacity = 0.25 - hop * 0.35;
+    root.rotation.z = Math.sin(t * 7) * 0.055;
+    root.rotation.y = idleTurn + Math.sin(t * 5) * 0.08;
+    root.scale.set(1 + hop * 0.08, 1 - hop * 0.035, 1 + hop * 0.04);
+    shadow.scale.set(1.16 + hop * 0.35, 0.36, 1);
+    shadow.material.opacity = 0.23 - hop * 0.18;
   } else if (state.current === 'eating') {
-    const chew = Math.sin(t * 18);
-    root.position.y = -0.02 + Math.abs(chew) * 0.028;
-    root.rotation.x = 0.08 + Math.max(0, chew) * 0.08;
-    root.scale.set(1.04 + Math.abs(chew) * 0.035, 0.97 - Math.abs(chew) * 0.025, 1.03);
+    const chew = Math.sin(t * 10);
+    root.position.y = -0.01 + Math.abs(chew) * 0.012;
+    root.rotation.x = 0.035 + Math.max(0, chew) * 0.025;
+    root.rotation.y = idleTurn * 0.5;
+    root.scale.set(1.015 + Math.abs(chew) * 0.01, 0.99, 1.01);
   } else if (state.current === 'sleeping') {
-    root.position.y = -0.16 + Math.sin(elapsed * 1.5) * 0.014;
-    root.rotation.z = -0.42;
-    root.rotation.x = 0.16;
-    root.scale.set(1.08, 0.84, 1.04);
-    shadow.scale.set(1.38, 0.34, 1);
-    shadow.material.opacity = 0.2;
+    root.position.y = -0.04 + Math.sin(elapsed * 1.2) * 0.01;
+    root.rotation.z = -0.08;
+    root.rotation.x = 0.05;
+    root.scale.set(1.03, 0.96, 1.02);
+    shadow.scale.set(1.26, 0.36, 1);
+    shadow.material.opacity = 0.19;
   }
 }
 
@@ -175,7 +178,6 @@ function renderLoop() {
   const delta = Math.min(clock.getDelta(), 0.05);
   const elapsed = clock.elapsedTime;
   updateState();
-  if (mixer) mixer.update(delta);
   animateModel(delta, elapsed);
   renderer.render(scene, camera);
   rafId = requestAnimationFrame(renderLoop);
@@ -216,15 +218,6 @@ loader.load(
     prepareMaterials(loadedModel);
     normalizeModel(loadedModel);
     modelPivot.add(loadedModel);
-
-    if (gltf.animations?.length) {
-      mixer = new THREE.AnimationMixer(loadedModel);
-      gltf.animations.forEach((clip) => {
-        const action = mixer.clipAction(clip);
-        action.setLoop(THREE.LoopRepeat);
-        action.play();
-      });
-    }
 
     setReady();
   },
