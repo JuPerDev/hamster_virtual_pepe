@@ -409,18 +409,14 @@ const HamsterPet = (() => {
   // --- Hamster Walking Logic ---
   function updateHamsterTransform() {
     if (!els.hamster) return;
-    els.hamster.style.transform = `translateX(${state.positionX}px) scaleX(${state.facingDirection})`;
+    els.hamster.style.transform = `translate3d(${state.positionX}px, 0, 0)`;
   }
 
   function startWalking() {
     if (state.currentAction || state.isSpeaking || state.isAiThinking) return;
 
-    // Pick a random target position between -60 and 60 pixels
-    const targetX = (Math.random() * 120) - 60;
+    const targetX = (Math.random() * 36) - 18;
 
-    // Flip direction: scaleX = -1 if walking to the right, scaleX = 1 if walking to the left
-    const movingRight = targetX > state.positionX;
-    state.facingDirection = movingRight ? -1 : 1;
     state.positionX = targetX;
     state.isWalking = true;
 
@@ -429,7 +425,6 @@ const HamsterPet = (() => {
       els.hamster.classList.add('walking');
       updateHamsterTransform();
 
-      // Walking travel duration is 1.2 seconds (matches transition in CSS)
       clearTimeout(state._walkTimer);
       state._walkTimer = setTimeout(() => {
         state.isWalking = false;
@@ -437,7 +432,7 @@ const HamsterPet = (() => {
           els.hamster.classList.remove('walking');
           updateIdleState();
         }
-      }, 1200);
+      }, 900);
     }
   }
 
@@ -634,7 +629,7 @@ const HamsterPet = (() => {
     }
 
     // Random horizontal walk when idle, not speaking, and not thinking
-    if (Math.random() < 0.25 && !state.currentAction && !state.isSpeaking && !state.isAiThinking && state.stats.energy >= 15) {
+    if (Math.random() < 0.08 && !state.currentAction && !state.isSpeaking && !state.isAiThinking && state.stats.energy >= 15) {
       startWalking();
     }
 

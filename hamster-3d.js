@@ -214,7 +214,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 loader.load(
-  'assets/hamster.glb',
+  'assets/hamster.glb?v=front-20260606',
   (gltf) => {
     loadedModel = gltf.scene;
     prepareMaterials(loadedModel);
