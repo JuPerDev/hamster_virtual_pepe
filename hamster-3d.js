@@ -70,6 +70,8 @@ const state = {
   actionTime: 0,
 };
 
+const MODEL_FRONT_Y = Math.PI;
+
 const classToState = () => {
   if (hamster.classList.contains('sleeping')) return 'sleeping';
   if (hamster.classList.contains('eating') || hamster.classList.contains('mouth-open')) return 'eating';
@@ -139,35 +141,35 @@ function animateModel(delta, elapsed) {
   root.rotation.set(0, idleTurn, 0);
   root.scale.setScalar(1);
   modelPivot.position.y = baseY;
-  modelPivot.rotation.set(0, 0, 0);
+  modelPivot.rotation.set(0, MODEL_FRONT_Y, 0);
 
   shadow.scale.set(1.2 + idleBob * 1.2, 0.4, 1);
   shadow.material.opacity = 0.22 - idleBob * 0.4;
 
   if (state.current === 'walking') {
-    root.position.y = Math.sin(t * 8) * 0.025;
-    root.rotation.z = Math.sin(t * 6) * 0.035;
-    root.rotation.y = idleTurn + Math.sin(t * 5) * 0.045;
+    root.position.y = Math.sin(t * 6) * 0.015;
+    root.rotation.z = Math.sin(t * 5) * 0.018;
+    root.rotation.y = idleTurn + Math.sin(t * 4) * 0.025;
     shadow.scale.set(1.22, 0.38, 1);
   } else if (state.current === 'happy' || state.current === 'catching') {
-    const hop = Math.max(0, Math.sin(t * 7)) * 0.075;
+    const hop = Math.max(0, Math.sin(t * 5)) * 0.04;
     root.position.y = hop;
-    root.rotation.z = Math.sin(t * 7) * 0.055;
-    root.rotation.y = idleTurn + Math.sin(t * 5) * 0.08;
-    root.scale.set(1 + hop * 0.08, 1 - hop * 0.035, 1 + hop * 0.04);
+    root.rotation.z = Math.sin(t * 5) * 0.025;
+    root.rotation.y = idleTurn + Math.sin(t * 4) * 0.04;
+    root.scale.set(1 + hop * 0.04, 1 - hop * 0.02, 1 + hop * 0.02);
     shadow.scale.set(1.16 + hop * 0.35, 0.36, 1);
     shadow.material.opacity = 0.23 - hop * 0.18;
   } else if (state.current === 'eating') {
-    const chew = Math.sin(t * 10);
-    root.position.y = -0.01 + Math.abs(chew) * 0.012;
-    root.rotation.x = 0.035 + Math.max(0, chew) * 0.025;
+    const chew = Math.sin(t * 8);
+    root.position.y = -0.005 + Math.abs(chew) * 0.008;
+    root.rotation.x = 0.015 + Math.max(0, chew) * 0.015;
     root.rotation.y = idleTurn * 0.5;
     root.scale.set(1.015 + Math.abs(chew) * 0.01, 0.99, 1.01);
   } else if (state.current === 'sleeping') {
-    root.position.y = -0.04 + Math.sin(elapsed * 1.2) * 0.01;
-    root.rotation.z = -0.08;
-    root.rotation.x = 0.05;
-    root.scale.set(1.03, 0.96, 1.02);
+    root.position.y = -0.025 + Math.sin(elapsed * 1.1) * 0.008;
+    root.rotation.z = -0.035;
+    root.rotation.x = 0.025;
+    root.scale.set(1.015, 0.985, 1.01);
     shadow.scale.set(1.26, 0.36, 1);
     shadow.material.opacity = 0.19;
   }
