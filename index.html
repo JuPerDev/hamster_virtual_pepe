@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mascota virtual hámster interactiva — aliméntala, juega, y escúchala hablar. Gratis y sin registro.">
+  <title>🐹 Mi Hámster Virtual</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
+</head>
+<body>
+
+  <!-- Volume Toggle -->
+  <button class="volume-toggle" id="volume-toggle" aria-label="Activar/desactivar sonido">🔊</button>
+
+  <!-- Settings Toggle -->
+  <button class="settings-toggle" id="settings-toggle" aria-label="Configuración">⚙️</button>
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="header">
+      <h1>Mi Hámster Virtual</h1>
+      <div class="pet-name">
+        <input
+          type="text"
+          class="name-input"
+          id="pet-name-input"
+          value="Bolita"
+          maxlength="15"
+          aria-label="Nombre de tu mascota"
+        >
+      </div>
+      <div class="age-display" id="age-display">🕐 Edad: 0 min</div>
+    </header>
+
+    <!-- Mood & AI Badge -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;">
+      <div class="mood-badge">
+        <span class="mood-emoji" id="mood-emoji">😊</span>
+        <span id="mood-text">Feliz</span>
+      </div>
+      <div class="ai-badge" id="ai-badge">
+        <span class="ai-dot offline" id="ai-dot"></span>
+        <span id="ai-status-text">IA Off</span>
+      </div>
+    </div>
+
+    <!-- Hamster Scene -->
+    <div class="hamster-scene">
+      <div class="hamster idle" id="hamster">
+        <!-- Body -->
+        <div class="hamster-body">
+          <div class="hamster-belly"></div>
+          <div class="cheek-left"></div>
+          <div class="cheek-right"></div>
+          <div class="ear-left"></div>
+          <div class="ear-right"></div>
+          <div class="eye-left"></div>
+          <div class="eye-right"></div>
+          <div class="hamster-nose"></div>
+          <div class="hamster-mouth"></div>
+          <div class="paw-left"></div>
+          <div class="paw-right"></div>
+          <div class="hamster-tail"></div>
+        </div>
+      </div>
+
+      <!-- Zzz for sleeping -->
+      <div class="zzz-container" id="zzz-container" style="display: none;">
+        <span class="zzz">Z</span>
+        <span class="zzz">z</span>
+        <span class="zzz">Z</span>
+      </div>
+
+      <!-- Draggable Seed -->
+      <div class="seed-food hint" id="draggable-seed" style="left: 10px; bottom: 30px;">
+        🌻<span class="seed-label">¡Aliméntame!</span>
+      </div>
+
+      <!-- Throwable Ball -->
+      <div class="ball hint" id="throwable-ball" style="right: 10px; bottom: 30px;">
+        <span class="ball-label">¡Lánzame!</span>
+      </div>
+    </div>
+
+    <!-- Speech Bubble -->
+    <div class="speech-bubble" id="speech-bubble">
+      <span id="speech-text">...</span>
+      <div class="typing-indicator" id="typing-indicator">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-container">
+      <div class="stat-row">
+        <span class="stat-icon">🌻</span>
+        <span class="stat-label">Hambre</span>
+        <div class="stat-bar-wrapper" id="hunger-wrapper">
+          <div class="stat-bar hunger" id="hunger-bar" style="width: 80%"></div>
+        </div>
+        <span class="stat-value" id="hunger-value">80</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon">💖</span>
+        <span class="stat-label">Felicidad</span>
+        <div class="stat-bar-wrapper" id="happiness-wrapper">
+          <div class="stat-bar happiness" id="happiness-bar" style="width: 70%"></div>
+        </div>
+        <span class="stat-value" id="happiness-value">70</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon">⚡</span>
+        <span class="stat-label">Energía</span>
+        <div class="stat-bar-wrapper" id="energy-wrapper">
+          <div class="stat-bar energy" id="energy-bar" style="width: 90%"></div>
+        </div>
+        <span class="stat-value" id="energy-value">90</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon">✨</span>
+        <span class="stat-label">Limpieza</span>
+        <div class="stat-bar-wrapper" id="cleanliness-wrapper">
+          <div class="stat-bar cleanliness" id="cleanliness-bar" style="width: 85%"></div>
+        </div>
+        <span class="stat-value" id="cleanliness-value">85</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-container">
+      <button class="action-btn feed" id="btn-feed">
+        <span class="btn-icon">🌻</span>
+        <span class="btn-label">Alimentar</span>
+      </button>
+      <button class="action-btn play" id="btn-play">
+        <span class="btn-icon">🎾</span>
+        <span class="btn-label">Jugar</span>
+      </button>
+      <button class="action-btn sleep" id="btn-sleep">
+        <span class="btn-icon">🛏️</span>
+        <span class="btn-label">Dormir</span>
+      </button>
+      <button class="action-btn clean" id="btn-clean">
+        <span class="btn-icon">🛁</span>
+        <span class="btn-label">Limpiar</span>
+      </button>
+      <button class="action-btn pet" id="btn-pet">
+        <span class="btn-icon">🤗</span>
+        <span class="btn-label">Acariciar</span>
+      </button>
+      <button class="action-btn talk" id="btn-talk">
+        <span class="btn-icon">💬</span>
+        <span class="btn-label">Hablar</span>
+      </button>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-container">
+      <input
+        type="text"
+        class="chat-input"
+        id="chat-input"
+        placeholder="Habla con tu hámster..."
+        maxlength="300"
+        aria-label="Escribe un mensaje para tu hámster"
+      >
+      <button class="chat-send-btn" id="chat-send" aria-label="Enviar mensaje">🐹</button>
+    </div>
+
+    <!-- Memory indicator -->
+    <div class="memory-badge" id="memory-badge">
+      🧠 <span id="memory-count">0</span> recuerdos
+      <button class="memory-clear-btn" id="memory-clear">Borrar</button>
+    </div>
+
+  </div>
+
+  <!-- API Key Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-card">
+      <h2>⚙️ Configuración de IA</h2>
+      <p>Ingresa tu API Key de Gemini para que tu hámster pueda conversar contigo con inteligencia artificial y recordar todo.</p>
+
+      <label for="api-key-input">API Key de Gemini</label>
+      <input
+        type="password"
+        class="modal-input"
+        id="api-key-input"
+        placeholder="AIzaSy..."
+        autocomplete="off"
+      >
+
+      <label for="gemini-model-select">Modelo</label>
+      <select class="modal-input" id="gemini-model-select" style="appearance: auto;">
+        <option value="gemini-2.0-flash">Gemini 2.0 Flash (rápido)</option>
+        <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (más rápido)</option>
+        <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (inteligente)</option>
+      </select>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" id="modal-cancel">Cancelar</button>
+        <button class="modal-btn primary" id="modal-save">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
