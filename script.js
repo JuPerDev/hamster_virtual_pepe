@@ -38,7 +38,7 @@ const HamsterPet = (() => {
       if (saved) {
         const parsed = JSON.parse(saved);
         Object.assign(state.stats, parsed.stats);
-        state.name = parsed.name || 'Bolita';
+        state.name = parsed.name || 'PEPE';
         state.isSoundOn = parsed.isSoundOn !== undefined ? parsed.isSoundOn : true;
         state.birthTime = parsed.birthTime || Date.now();
 
