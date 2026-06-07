@@ -526,35 +526,55 @@ const HamsterPet = (() => {
     animateHamster('happy', 1500);
   }
 
+  let restInterval = null;
+
+  function wakeUp(silent = false) {
+    if (restInterval) {
+      clearInterval(restInterval);
+      restInterval = null;
+    }
+    state.currentAction = null;
+    els.hamster.classList.remove('sleeping');
+    els.zzzContainer.style.display = 'none';
+    if (!silent) {
+      animateHamster('bounce', 800);
+      showBubble('¡Desperté con mucha energía! ⚡');
+      speak('Desperté con mucha energía');
+    }
+    updateIdleState();
+    saveState();
+  }
+
+  function handleActionClick(actionFn) {
+    return function(e) {
+      if (state.currentAction === 'sleeping') {
+        wakeUp(true); // silent wakeup
+        if (actionFn === sleep) return; // if they clicked sleep, just wake up
+      }
+      actionFn(e);
+    };
+  }
+
   function sleep() {
+    if (state.currentAction) return;
+
     state.currentAction = 'sleeping';
     els.hamster.classList.remove('idle', 'bounce', 'happy', 'eating');
     els.hamster.classList.add('sleeping');
     els.zzzContainer.style.display = 'block';
     say('sleeping');
-    disableButtons(5000);
 
-    const restInterval = setInterval(() => {
-      state.stats.energy = Math.min(100, state.stats.energy + 5);
+    restInterval = setInterval(() => {
+      state.stats.energy = Math.min(100, state.stats.energy + 10);
       state.stats.hunger = Math.max(0, state.stats.hunger - 1);
       updateStatsUI();
       updateMood();
-    }, 800);
-
-    setTimeout(() => {
-      clearInterval(restInterval);
-      state.currentAction = null;
-      els.hamster.classList.remove('sleeping');
-      els.zzzContainer.style.display = 'none';
-      animateHamster('bounce', 800);
-      showBubble('¡Abby, Pascal, desperté con energía! ⚡');
-      speak('Abby, Pascal, desperté con energía');
-      updateIdleState();
       saveState();
-    }, 5000);
 
-    updateStatsUI();
-    updateMood();
+      if (state.stats.energy >= 100) {
+        wakeUp();
+      }
+    }, 1500);
   }
 
   function clean() {
@@ -1443,17 +1463,17 @@ const HamsterPet = (() => {
     updateIdleState();
 
     // Event listeners
-    els.feedBtn.addEventListener('click', onFeedBtnClick);
-    els.playBtn.addEventListener('click', play);
-    els.sleepBtn.addEventListener('click', sleep);
-    els.cleanBtn.addEventListener('click', clean);
-    els.petBtn.addEventListener('click', pet);
-    els.talkBtn.addEventListener('click', talk);
-    els.wardrobeBtn.addEventListener('click', openWardrobe);
+    els.feedBtn.addEventListener('click', handleActionClick(onFeedBtnClick));
+    els.playBtn.addEventListener('click', handleActionClick(play));
+    els.sleepBtn.addEventListener('click', handleActionClick(sleep));
+    els.cleanBtn.addEventListener('click', handleActionClick(clean));
+    els.petBtn.addEventListener('click', handleActionClick(pet));
+    els.talkBtn.addEventListener('click', handleActionClick(talk));
+    els.wardrobeBtn.addEventListener('click', handleActionClick(openWardrobe));
     els.wardrobeCloseBtn.addEventListener('click', closeWardrobe);
-    els.btnGlasses.addEventListener('click', openGlasses);
+    els.btnGlasses.addEventListener('click', handleActionClick(openGlasses));
     els.btnGlassesClose.addEventListener('click', closeGlasses);
-    els.hamster.addEventListener('click', onHamsterClick);
+    els.hamster.addEventListener('click', handleActionClick(onHamsterClick));
     els.volumeToggle.addEventListener('click', toggleSound);
     els.nameInput.addEventListener('change', onNameChange);
 

@@ -246,6 +246,11 @@ body::before {
   100% { background-image: url('assets/hamster_ilu/hamster_01.svg'); }
 }
 
+.hamster.sleeping .hamster-ilu {
+  background-image: url('assets/hamster_ilu/hamster_03.svg') !important;
+  animation: none !important;
+}
+
 /* Belly */
 .hamster-belly {
   position: absolute;
