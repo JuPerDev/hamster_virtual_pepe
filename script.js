@@ -29,6 +29,8 @@ const HamsterPet = (() => {
     positionX: 0,
     facingDirection: 1,
     isWalking: false,
+    // Wardrobe
+    hat: '',
   };
 
   // --- Load saved state ---
@@ -41,6 +43,7 @@ const HamsterPet = (() => {
         state.name = parsed.name || 'PEPE';
         state.isSoundOn = parsed.isSoundOn !== undefined ? parsed.isSoundOn : true;
         state.birthTime = parsed.birthTime || Date.now();
+        state.hat = parsed.hat || '';
 
         // Decay stats based on time away
         const minutesAway = (Date.now() - (parsed.lastSave || Date.now())) / 60000;
@@ -64,6 +67,7 @@ const HamsterPet = (() => {
         name: state.name,
         isSoundOn: state.isSoundOn,
         birthTime: state.birthTime,
+        hat: state.hat,
         lastSave: Date.now(),
       }));
     } catch (e) {
@@ -199,11 +203,17 @@ const HamsterPet = (() => {
       cleanBtn: document.getElementById('btn-clean'),
       petBtn: document.getElementById('btn-pet'),
       talkBtn: document.getElementById('btn-talk'),
+      wardrobeBtn: document.getElementById('btn-wardrobe'),
       // Ball
       ball: document.getElementById('throwable-ball'),
       hamsterScene: document.querySelector('.hamster-scene'),
       // Foods
       foods: document.querySelectorAll('.draggable-food'),
+      // Wardrobe
+      hamsterHat: document.getElementById('hamster-hat'),
+      wardrobeModal: document.getElementById('wardrobe-modal'),
+      wardrobeCloseBtn: document.getElementById('btn-wardrobe-close'),
+      hatOptions: document.querySelectorAll('.hat-option'),
     };
   }
 
@@ -1188,8 +1198,60 @@ const HamsterPet = (() => {
   }
 
   // ========================================
-  //  END SYSTEM
+  //  WARDROBE SYSTEM
   // ========================================
+
+  function openWardrobe() {
+    if (state.currentAction) return;
+    playSound('select');
+    
+    // Highlight current hat
+    els.hatOptions.forEach(btn => {
+      if (btn.dataset.hat === state.hat) {
+        btn.classList.add('selected');
+      } else {
+        btn.classList.remove('selected');
+      }
+    });
+
+    els.wardrobeModal.classList.add('visible');
+  }
+
+  function closeWardrobe() {
+    playSound('select');
+    els.wardrobeModal.classList.remove('visible');
+  }
+
+  function onHatSelect(e) {
+    const btn = e.currentTarget;
+    const selectedHat = btn.dataset.hat;
+    
+    state.hat = selectedHat;
+    saveState();
+    applyHat(selectedHat);
+    
+    // Update UI
+    els.hatOptions.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    
+    // Small animation on hamster
+    els.hamsterHat.style.transform = 'translate(-50%, -10px)';
+    setTimeout(() => {
+      els.hamsterHat.style.transform = 'translateX(-50%)';
+    }, 150);
+
+    playSound('select');
+  }
+
+  function applyHat(hatEmoji) {
+    if (hatEmoji) {
+      els.hamsterHat.textContent = hatEmoji;
+      els.hamsterHat.style.display = 'block';
+    } else {
+      els.hamsterHat.textContent = '';
+      els.hamsterHat.style.display = 'none';
+    }
+  }
 
   function init() {
     cacheDom();
@@ -1212,9 +1274,18 @@ const HamsterPet = (() => {
     els.cleanBtn.addEventListener('click', clean);
     els.petBtn.addEventListener('click', pet);
     els.talkBtn.addEventListener('click', talk);
+    els.wardrobeBtn.addEventListener('click', openWardrobe);
+    els.wardrobeCloseBtn.addEventListener('click', closeWardrobe);
     els.hamster.addEventListener('click', onHamsterClick);
     els.volumeToggle.addEventListener('click', toggleSound);
     els.nameInput.addEventListener('change', onNameChange);
+
+    els.hatOptions.forEach(btn => {
+      btn.addEventListener('click', onHatSelect);
+    });
+
+    // Apply saved hat
+    applyHat(state.hat);
 
     // Init ball throw system
     initBall();

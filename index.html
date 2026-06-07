@@ -54,6 +54,9 @@
           <div class="hamster-nose"></div>
           <div class="hamster-mouth"></div>
           <div class="muzzle"></div>
+          
+          <!-- Hat -->
+          <div class="hamster-hat" id="hamster-hat" style="display: none;"></div>
 
           <div class="paw-left"></div>
           <div class="paw-right"></div>
@@ -157,12 +160,40 @@
         <span class="btn-icon">💬</span>
         <span class="btn-label">Hablar</span>
       </button>
+      <button class="action-btn wardrobe" id="btn-wardrobe">
+        <span class="btn-icon">👗</span>
+        <span class="btn-label">Ropero</span>
+      </button>
     </div>
 
+    </div>
+
+    <!-- Wardrobe Modal -->
+    <div class="modal-overlay" id="wardrobe-modal">
+      <div class="modal-card wardrobe-card">
+        <h2>👗 El Ropero de Pepe</h2>
+        <p>¡Elige un gorrito para tu hámster!</p>
+        
+        <div class="hat-grid">
+          <button class="hat-option" data-hat="">🚫</button>
+          <button class="hat-option" data-hat="🎩">🎩</button>
+          <button class="hat-option" data-hat="🧢">🧢</button>
+          <button class="hat-option" data-hat="👑">👑</button>
+          <button class="hat-option" data-hat="🎀">🎀</button>
+          <button class="hat-option" data-hat="🤠">🤠</button>
+          <button class="hat-option" data-hat="🎓">🎓</button>
+          <button class="hat-option" data-hat="🥳">🥳</button>
+          <button class="hat-option" data-hat="😎">😎</button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="modal-btn secondary" id="btn-wardrobe-close">Cerrar</button>
+        </div>
+      </div>
     </div>
 
   </div>
 
-  <script src="script.js?v=pepe-20260606-5"></script>
+  <script src="script.js?v=pepe-20260606-7"></script>
 </body>
 </html>
