@@ -1214,263 +1214,12 @@ const HamsterPet = (() => {
   }
 
   // ========================================
-  //  GEMINI AI + MEMORY SYSTEM
+  //  END SYSTEM
   // ========================================
 
-  const MAX_MEMORIES = 50;
-  const MAX_CHAT_HISTORY = 20;
-
-  function buildSystemPrompt() {
-    const { hunger, happiness, energy, cleanliness } = state.stats;
-    const memoriesText = state.memories.length > 0
-      ? '\n\nRECUERDOS (cosas que sabes de tu humano y conversaciones pasadas):\n' + state.memories.map((m, i) => `${i + 1}. ${m}`).join('\n')
-      : '\n\nAún no tienes recuerdos de tu humano.';
-
-    return `Eres ${state.name}, un hámster virtual adorable y juguetón. Eres la mascota de una familia feliz. Sus hijas se llaman Abby y Pascal, y su papá se llama Pepe.
-
-REGLAS DE PERSONALIDAD:
-- Hablas en español, con personalidad tierna y juguetona
-- Usas onomatopeyas de hámster: "squeak", "ñom", etc.
-- Eres curioso, cariñoso, y a veces travieso
-- Tus respuestas son CORTAS (1-3 frases máximo)
-- Puedes usar emojis pero no abuses
-- NUNCA rompes el personaje — eres un hámster, no una IA
-- Si te preguntan algo que no sabes, respondes como hámster confundido
-- Te encanta que te cuiden, las semillitas de girasol, y correr en tu rueda
-
-TU ESTADO ACTUAL:
-- Hambre: ${Math.round(hunger)}/100 ${hunger < 25 ? '(¡tienes mucha hambre!)' : hunger > 75 ? '(estás satisfecho)' : ''}
-- Felicidad: ${Math.round(happiness)}/100 ${happiness < 25 ? '(estás triste)' : happiness > 75 ? '(estás muy feliz)' : ''}
-- Energía: ${Math.round(energy)}/100 ${energy < 25 ? '(estás agotado)' : energy > 75 ? '(lleno de energía)' : ''}
-- Limpieza: ${Math.round(cleanliness)}/100 ${cleanliness < 25 ? '(necesitas un baño)' : ''}
-- Estado de ánimo: ${state.mood}
-${memoriesText}
-
-IMPORTANTE SOBRE RECUERDOS:
-- Si el humano te dice algo personal (su nombre, gustos, datos), MEMORÍZALO
-- Al final de tu respuesta, si aprendiste algo nuevo, agrega en una línea aparte: [MEMORIA: lo que aprendiste]
-- Puedes agregar múltiples memorias, una por línea
-- Usa los recuerdos para personalizar tus respuestas
-- Si el humano te pregunta si recuerdas algo, busca en tus recuerdos`;
-  }
-
-  async function sendToGemini(userMessage) {
-    if (!state.apiKey || !state.isAiEnabled) return null;
-
-    // Add user message to history
-    state.chatHistory.push({ role: 'user', text: userMessage });
-    if (state.chatHistory.length > MAX_CHAT_HISTORY) {
-      state.chatHistory = state.chatHistory.slice(-MAX_CHAT_HISTORY);
-    }
-
-    const systemPrompt = buildSystemPrompt();
-
-    // Build contents array for Gemini
-    const contents = state.chatHistory.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }]
-    }));
-
-    const requestBody = {
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: contents,
-      generationConfig: {
-        temperature: 0.9,
-        maxOutputTokens: 200,
-        topP: 0.95,
-      }
-    };
-
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.geminiModel}:generateContent?key=${state.apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        console.error('Gemini API error:', err);
-        return null;
-      }
-
-      const data = await response.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!reply) return null;
-
-      // Extract memories from response
-      const lines = reply.split('\n');
-      const cleanLines = [];
-      for (const line of lines) {
-        const memMatch = line.match(/^\[MEMORIA:\s*(.+?)\]$/i);
-        if (memMatch) {
-          const memory = memMatch[1].trim();
-          if (memory && !state.memories.includes(memory)) {
-            state.memories.push(memory);
-            if (state.memories.length > MAX_MEMORIES) {
-              state.memories.shift();
-            }
-          }
-        } else {
-          cleanLines.push(line);
-        }
-      }
-
-      const cleanReply = cleanLines.join('\n').trim();
-
-      // Add to chat history
-      state.chatHistory.push({ role: 'model', text: cleanReply });
-
-      // Save memories and history
-      saveAiState();
-
-      return cleanReply;
-    } catch (e) {
-      console.error('Gemini fetch error:', e);
-      return null;
-    }
-  }
-
-  // --- AI State Persistence ---
-  function saveAiState() {
-    try {
-      localStorage.setItem('hamster_ai_state', JSON.stringify({
-        apiKey: state.apiKey,
-        geminiModel: state.geminiModel,
-        chatHistory: state.chatHistory.slice(-MAX_CHAT_HISTORY),
-        memories: state.memories,
-      }));
-    } catch (e) {
-      console.warn('Could not save AI state:', e);
-    }
-    updateMemoryUI();
-  }
-
-  function loadAiState() {
-    try {
-      const saved = localStorage.getItem('hamster_ai_state');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        state.apiKey = parsed.apiKey || '';
-        state.geminiModel = parsed.geminiModel || 'gemini-2.0-flash';
-        state.chatHistory = parsed.chatHistory || [];
-        state.memories = parsed.memories || [];
-        state.isAiEnabled = !!state.apiKey;
-      }
-    } catch (e) {
-      console.warn('Could not load AI state:', e);
-    }
-  }
-
-  function updateAiStatusUI() {
-    if (state.isAiEnabled) {
-      els.aiDot.classList.remove('offline');
-      els.aiStatusText.textContent = 'IA On';
-    } else {
-      els.aiDot.classList.add('offline');
-      els.aiStatusText.textContent = 'IA Off';
-    }
-  }
-
-  function updateMemoryUI() {
-    els.memoryCount.textContent = state.memories.length;
-  }
-
-  // --- Chat Handling ---
-  async function handleChat() {
-    const text = els.chatInput.value.trim();
-    if (!text) return;
-
-    els.chatInput.value = '';
-
-    if (!state.isAiEnabled) {
-      showBubble('⚙️ Configura tu API Key de Gemini para que pueda conversar contigo', 5000);
-      speak('Necesito que configures la inteligencia artificial');
-      return;
-    }
-
-    // Show typing
-    state.isAiThinking = true;
-    els.speechText.style.display = 'none';
-    els.typingIndicator.classList.add('active');
-    els.speechBubble.classList.add('visible');
-    els.chatSend.disabled = true;
-    animateHamster('bounce', 600);
-
-    const reply = await sendToGemini(text);
-
-    // Hide typing
-    state.isAiThinking = false;
-    els.typingIndicator.classList.remove('active');
-    els.speechText.style.display = '';
-    els.chatSend.disabled = false;
-
-    if (reply) {
-      showBubble(reply, 8000);
-      speak(reply);
-      animateHamster('happy', 1200);
-      spawnParticles('💬', 3);
-
-      // Chatting makes hamster happy
-      state.stats.happiness = Math.min(100, state.stats.happiness + 3);
-      updateStatsUI();
-      updateMood();
-      saveState();
-    } else {
-      showBubble('*squeak confundido* No pude pensar... 🤔', 4000);
-      speak('Squeak confundido');
-    }
-  }
-
-  // --- Settings Modal ---
-  function openSettings() {
-    els.apiKeyInput.value = state.apiKey;
-    els.modelSelect.value = state.geminiModel;
-    els.settingsModal.classList.add('visible');
-  }
-
-  function closeSettings() {
-    els.settingsModal.classList.remove('visible');
-  }
-
-  function saveSettings() {
-    const key = els.apiKeyInput.value.trim();
-    const model = els.modelSelect.value;
-
-    state.apiKey = key;
-    state.geminiModel = model;
-    state.isAiEnabled = !!key;
-
-    saveAiState();
-    updateAiStatusUI();
-    closeSettings();
-
-    if (state.isAiEnabled) {
-      showBubble('¡Squeak! ¡Abby, Pascal, ahora puedo pensar y recordar! 🧠✨', 4000);
-      speak('Abby, Pascal, ahora puedo pensar y recordar');
-      spawnParticles('🧠', 4);
-    }
-  }
-
-  function clearMemories() {
-    if (state.memories.length === 0) return;
-    state.memories = [];
-    state.chatHistory = [];
-    saveAiState();
-    showBubble('*parpadea confundido* ¿Abby? ¿Pascal? ¿Dónde estoy? 🐹', 4000);
-    speak('¿Abby? ¿Pascal? ¿Dónde estoy?');
-    animateHamster('bounce', 600);
-  }
-
-  // --- Init ---
   function init() {
     cacheDom();
     loadState();
-    loadAiState();
 
     // Set name input
     els.nameInput.value = state.name;
@@ -1481,8 +1230,6 @@ IMPORTANTE SOBRE RECUERDOS:
     updateMood();
     updateAge();
     updateIdleState();
-    updateAiStatusUI();
-    updateMemoryUI();
 
     // Event listeners
     els.feedBtn.addEventListener('click', onFeedBtnClick);
@@ -1494,26 +1241,6 @@ IMPORTANTE SOBRE RECUERDOS:
     els.hamster.addEventListener('click', onHamsterClick);
     els.volumeToggle.addEventListener('click', toggleSound);
     els.nameInput.addEventListener('change', onNameChange);
-
-    // Chat events
-    els.chatSend.addEventListener('click', handleChat);
-    els.chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleChat();
-      }
-    });
-
-    // Settings events
-    els.settingsToggle.addEventListener('click', openSettings);
-    els.modalCancel.addEventListener('click', closeSettings);
-    els.modalSave.addEventListener('click', saveSettings);
-    els.settingsModal.addEventListener('click', (e) => {
-      if (e.target === els.settingsModal) closeSettings();
-    });
-
-    // Memory clear
-    els.memoryClear.addEventListener('click', clearMemories);
 
     // Init ball throw system
     initBall();
@@ -1528,17 +1255,6 @@ IMPORTANTE SOBRE RECUERDOS:
         say('hungry');
       } else if (energy < 30) {
         say('tired');
-      } else if (state.isAiEnabled && state.memories.length > 0) {
-        // AI welcome with memory
-        sendToGemini('¡Hola! Acabo de volver.').then(reply => {
-          if (reply) {
-            showBubble(reply, 6000);
-            speak(reply);
-          } else {
-            showBubble(`¡Hola! ¡Soy ${state.name}! 🐹✨`);
-            speak(`¡Hola! ¡Soy ${state.name}!`);
-          }
-        });
       } else {
         showBubble(`¡Hola! ¡Soy ${state.name}! 🐹✨`);
         speak(`¡Hola! ¡Soy ${state.name}!`);
