@@ -1682,6 +1682,26 @@ body::before {
   cursor: grabbing;
 }
 
+.hamster-glasses {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 220px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 16;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+.hamster-glasses:active {
+  cursor: grabbing;
+}
+
 .hat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1689,7 +1709,7 @@ body::before {
   margin: 20px 0;
 }
 
-.hat-option {
+.hat-option, .glasses-option {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
@@ -1702,12 +1722,12 @@ body::before {
   justify-content: center;
 }
 
-.hat-option:hover {
+.hat-option:hover, .glasses-option:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px) scale(1.05);
 }
 
-.hat-option.selected {
+.hat-option.selected, .glasses-option.selected {
   background: rgba(255, 255, 255, 0.2);
   border-color: var(--primary);
   box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);

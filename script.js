@@ -46,6 +46,9 @@ const HamsterPet = (() => {
         state.hat = parsed.hat || '';
         state.hatTop = parsed.hatTop || null;
         state.hatLeft = parsed.hatLeft || null;
+        state.glasses = parsed.glasses || '';
+        state.glassesTop = parsed.glassesTop || null;
+        state.glassesLeft = parsed.glassesLeft || null;
 
         // Decay stats based on time away
         const minutesAway = (Date.now() - (parsed.lastSave || Date.now())) / 60000;
@@ -72,6 +75,9 @@ const HamsterPet = (() => {
         hat: state.hat,
         hatTop: state.hatTop,
         hatLeft: state.hatLeft,
+        glasses: state.glasses,
+        glassesTop: state.glassesTop,
+        glassesLeft: state.glassesLeft,
         lastSave: Date.now(),
       }));
     } catch (e) {
@@ -218,6 +224,12 @@ const HamsterPet = (() => {
       wardrobeModal: document.getElementById('wardrobe-modal'),
       wardrobeCloseBtn: document.getElementById('btn-wardrobe-close'),
       hatOptions: document.querySelectorAll('.hat-option'),
+      // Glasses
+      hamsterGlasses: document.getElementById('hamster-glasses'),
+      btnGlasses: document.getElementById('btn-glasses'),
+      glassesModal: document.getElementById('glasses-modal'),
+      btnGlassesClose: document.getElementById('btn-glasses-close'),
+      glassesOptions: document.querySelectorAll('.glasses-option'),
     };
   }
 
@@ -1310,6 +1322,112 @@ const HamsterPet = (() => {
     });
   }
 
+  // ========================================
+  //  GLASSES SYSTEM
+  // ========================================
+
+  function openGlasses() {
+    if (state.currentAction) return;
+    
+    els.glassesOptions.forEach(btn => {
+      if (btn.dataset.glasses === state.glasses) {
+        btn.classList.add('selected');
+      } else {
+        btn.classList.remove('selected');
+      }
+    });
+
+    els.glassesModal.classList.add('visible');
+  }
+
+  function closeGlasses() {
+    els.glassesModal.classList.remove('visible');
+  }
+
+  function onGlassesSelect(e) {
+    const btn = e.currentTarget;
+    const selectedGlasses = btn.dataset.glasses;
+    
+    state.glasses = selectedGlasses;
+    saveState();
+    applyGlasses(selectedGlasses);
+    
+    els.glassesOptions.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    
+    els.hamsterGlasses.style.transform = 'translate(-50%, -10px)';
+    setTimeout(() => {
+      els.hamsterGlasses.style.transform = 'translateX(-50%)';
+    }, 150);
+  }
+
+  function applyGlasses(glassesValue) {
+    if (glassesValue) {
+      if (glassesValue.includes('.svg') || glassesValue.includes('.png')) {
+        els.hamsterGlasses.textContent = '';
+        els.hamsterGlasses.style.backgroundImage = `url('${glassesValue}')`;
+      } else {
+        els.hamsterGlasses.style.backgroundImage = 'none';
+        els.hamsterGlasses.textContent = glassesValue;
+      }
+      els.hamsterGlasses.style.display = 'block';
+
+      if (state.glassesTop && state.glassesLeft) {
+        els.hamsterGlasses.style.top = state.glassesTop;
+        els.hamsterGlasses.style.left = state.glassesLeft;
+      } else {
+        els.hamsterGlasses.style.top = '-50px';
+        els.hamsterGlasses.style.left = '50%';
+      }
+    } else {
+      els.hamsterGlasses.textContent = '';
+      els.hamsterGlasses.style.backgroundImage = 'none';
+      els.hamsterGlasses.style.display = 'none';
+    }
+  }
+
+  const glassesDragState = {
+    isDragging: false,
+    lastPointerX: 0,
+    lastPointerY: 0,
+  };
+
+  function initGlassesDrag() {
+    const glassesEl = els.hamsterGlasses;
+    glassesEl.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.target.setPointerCapture(e.pointerId);
+      glassesDragState.isDragging = true;
+      glassesDragState.lastPointerX = e.clientX;
+      glassesDragState.lastPointerY = e.clientY;
+    });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!glassesDragState.isDragging) return;
+      e.preventDefault();
+      const dx = e.clientX - glassesDragState.lastPointerX;
+      const dy = e.clientY - glassesDragState.lastPointerY;
+      
+      const currentTop = parseFloat(getComputedStyle(glassesEl).top) || 0;
+      const currentLeft = parseFloat(getComputedStyle(glassesEl).left) || 0;
+
+      glassesEl.style.left = (currentLeft + dx) + 'px';
+      glassesEl.style.top = (currentTop + dy) + 'px';
+      
+      glassesDragState.lastPointerX = e.clientX;
+      glassesDragState.lastPointerY = e.clientY;
+    });
+
+    document.addEventListener('pointerup', (e) => {
+      if (glassesDragState.isDragging) {
+        glassesDragState.isDragging = false;
+        state.glassesTop = glassesEl.style.top;
+        state.glassesLeft = glassesEl.style.left;
+        saveState();
+      }
+    });
+  }
+
   function init() {
     cacheDom();
     loadState();
@@ -1333,6 +1451,8 @@ const HamsterPet = (() => {
     els.talkBtn.addEventListener('click', talk);
     els.wardrobeBtn.addEventListener('click', openWardrobe);
     els.wardrobeCloseBtn.addEventListener('click', closeWardrobe);
+    els.btnGlasses.addEventListener('click', openGlasses);
+    els.btnGlassesClose.addEventListener('click', closeGlasses);
     els.hamster.addEventListener('click', onHamsterClick);
     els.volumeToggle.addEventListener('click', toggleSound);
     els.nameInput.addEventListener('change', onNameChange);
@@ -1340,14 +1460,20 @@ const HamsterPet = (() => {
     els.hatOptions.forEach(btn => {
       btn.addEventListener('click', onHatSelect);
     });
+    
+    els.glassesOptions.forEach(btn => {
+      btn.addEventListener('click', onGlassesSelect);
+    });
 
-    // Apply saved hat
+    // Apply saved accessories
     applyHat(state.hat);
+    applyGlasses(state.glasses);
 
-    // Init ball throw system
+    // Init systems
     initBall();
     initFoods();
     initHatDrag();
+    initGlassesDrag();
 
     // Ensure voices are loaded
 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Mascota virtual hámster interactiva — aliméntala, juega, y escúchala hablar. Gratis y sin registro.">
   <title>🐹 Mi Hámster Virtual</title>
-  <link rel="stylesheet" href="style.css?v=20260607-2">
+  <link rel="stylesheet" href="style.css?v=20260607-3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
 </head>
 <body>
@@ -48,6 +48,8 @@
           
           <!-- Hat -->
           <div class="hamster-hat" id="hamster-hat" style="display: none;"></div>
+          <!-- Glasses -->
+          <div class="hamster-glasses" id="hamster-glasses" style="display: none;"></div>
         </div>
       </div>
 
@@ -148,8 +150,12 @@
         <span class="btn-label">Hablar</span>
       </button>
       <button class="action-btn wardrobe" id="btn-wardrobe">
-        <span class="btn-icon">👗</span>
-        <span class="btn-label">Ropero</span>
+        <span class="btn-icon">🎩</span>
+        <span class="btn-label">Gorros</span>
+      </button>
+      <button class="action-btn wardrobe" id="btn-glasses">
+        <span class="btn-icon">🕶️</span>
+        <span class="btn-label">Lentes</span>
       </button>
     </div>
 
@@ -158,7 +164,7 @@
     <!-- Wardrobe Modal -->
     <div class="modal-overlay" id="wardrobe-modal">
       <div class="modal-card wardrobe-card">
-        <h2>👗 El Ropero de Pepe</h2>
+        <h2>🎩 Los Gorros de Pepe</h2>
         <p>¡Elige un gorrito para tu hámster!</p>
         
         <div class="hat-grid">
@@ -174,8 +180,36 @@
       </div>
     </div>
 
+    <!-- Glasses Modal -->
+    <div class="modal-overlay" id="glasses-modal">
+      <div class="modal-card wardrobe-card">
+        <h2>🕶️ Los Lentes de Pepe</h2>
+        <p>¡Elige unos lentes para tu hámster!</p>
+        
+        <div class="hat-grid" id="glasses-grid">
+          <button class="glasses-option" data-glasses="">🚫</button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/celestes.svg">
+            <img src="assets/hamster_ilu/lentes/celestes.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/estrella.svg">
+            <img src="assets/hamster_ilu/lentes/estrella.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/negros.svg">
+            <img src="assets/hamster_ilu/lentes/negros.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/rojos.svg">
+            <img src="assets/hamster_ilu/lentes/rojos.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="modal-btn secondary" id="btn-glasses-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <script src="script.js?v=20260607-2"></script>
+  <script src="script.js?v=20260607-3"></script>
 </body>
 </html>
