@@ -715,6 +715,9 @@ const HamsterPet = (() => {
     ballEl.classList.add('dragging');
     ballEl.classList.remove('hint');
 
+    // Move to body so perspective transforms don't ruin viewport fixed coordinates
+    document.body.appendChild(ballEl);
+
     // Switch ball to fixed positioning for drag
     ballEl.style.position = 'fixed';
     ballEl.style.left = (rect.left) + 'px';
@@ -926,8 +929,8 @@ const HamsterPet = (() => {
     ballEl.style.top = targetTop + 'px';
 
     setTimeout(() => {
-      // Return to absolute positioning in scene
       ballEl.style.transition = '';
+      els.hamsterScene.appendChild(ballEl);
       ballEl.style.position = 'absolute';
       ballEl.style.left = '';
       ballEl.style.top = '';
@@ -996,6 +999,9 @@ const HamsterPet = (() => {
 
     activeDraggedFood.classList.add('dragging');
     activeDraggedFood.classList.remove('hint');
+
+    // Move to body so perspective transforms don't ruin viewport fixed coordinates
+    document.body.appendChild(activeDraggedFood);
 
     // Switch food to fixed positioning for drag
     activeDraggedFood.style.position = 'fixed';
@@ -1144,6 +1150,7 @@ const HamsterPet = (() => {
 
     setTimeout(() => {
       foodEl.style.transition = '';
+      els.hamsterScene.appendChild(foodEl);
       foodEl.style.position = 'absolute';
       foodEl.style.left = '';
       foodEl.style.top = '';
