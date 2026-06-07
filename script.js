@@ -669,7 +669,12 @@ const HamsterPet = (() => {
   }
 
   // --- Hamster Click ---
+  // Set to true right after a real accessory drag so the click that the
+  // browser fires on pointerup doesn't accidentally trigger petting.
+  let accessoryDragOccurred = false;
+
   function onHamsterClick() {
+    if (accessoryDragOccurred) return;
     if (state.currentAction) return;
     animateHamster('bounce', 600);
     spawnParticles('💖', 3);
@@ -990,9 +995,11 @@ const HamsterPet = (() => {
   function initFoods() {
     const foodEls = document.querySelectorAll('.draggable-food');
     foodEls.forEach(el => {
+      // Foods start hidden (display:none), so offsetLeft/Top would be 0.
+      // Read the home position from the inline styles instead.
       foodDragState.origins[el.id] = {
-        left: el.offsetLeft,
-        top: el.offsetTop
+        left: parseFloat(el.style.left) || 0,
+        bottom: parseFloat(el.style.bottom) || 30
       };
 
       el.addEventListener('pointerdown', onFoodPointerDown);
@@ -1006,9 +1013,8 @@ const HamsterPet = (() => {
   function onFoodPointerDown(e) {
     if (state.currentAction) return;
     e.preventDefault();
-    e.target.setPointerCapture(e.pointerId);
-
     activeDraggedFood = e.currentTarget;
+    activeDraggedFood.setPointerCapture(e.pointerId);
 
     const startLeft = activeDraggedFood.offsetLeft;
     const startTop = activeDraggedFood.offsetTop;
@@ -1152,23 +1158,21 @@ const HamsterPet = (() => {
 
   function resetFoodPosition(foodEl) {
     foodEl.classList.remove('dragging');
-    
-    foodEl.style.transition = 'left 0.5s cubic-bezier(0.34,1.56,0.64,1), top 0.5s cubic-bezier(0.34,1.56,0.64,1), position 0s';
 
-    let offsetLeft = 50;
-    if (foodEl.dataset.food === 'carrot') offsetLeft = 120;
-    else if (foodEl.dataset.food === 'cheese') offsetLeft = 190;
+    // Restore the home position captured at init, converting the
+    // bottom-anchored origin into a top value relative to the current
+    // scene size so it stays correct on every screen (incl. mobile).
+    const home = foodDragState.origins[foodEl.id] || { left: 50, bottom: 30 };
+    const targetTop = els.hamsterScene.clientHeight - foodEl.offsetHeight - home.bottom;
 
-    const targetTop = 210;
-
-    foodEl.style.left = offsetLeft + 'px';
+    foodEl.style.right = 'auto';
+    foodEl.style.bottom = 'auto';
+    foodEl.style.transition = 'left 0.5s cubic-bezier(0.34,1.56,0.64,1), top 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+    foodEl.style.left = home.left + 'px';
     foodEl.style.top = targetTop + 'px';
 
     setTimeout(() => {
       foodEl.style.transition = '';
-      foodEl.style.left = offsetLeft + 'px';
-      foodEl.style.top = '';
-      foodEl.style.bottom = '30px';
       foodEl.classList.add('hint');
     }, 550);
   }
@@ -1300,45 +1304,64 @@ const HamsterPet = (() => {
     }
   }
 
-  const hatDragState = {
-    isDragging: false,
-    lastPointerX: 0,
-    lastPointerY: 0,
-  };
+  // Shared, robust drag handler for the hat and glasses. Uses a small
+  // movement threshold so a simple tap still pets the hamster, captures the
+  // pointer on the element itself (works for mouse + touch), and suppresses
+  // the trailing click after a real drag.
+  function makeAccessoryDraggable(el, onSave) {
+    let dragging = false;
+    let moved = false;
+    let startX = 0, startY = 0;
+    let lastX = 0, lastY = 0;
 
-  function initHatDrag() {
-    const hatEl = els.hamsterHat;
-    hatEl.addEventListener('pointerdown', (e) => {
+    el.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      e.target.setPointerCapture(e.pointerId);
-      hatDragState.isDragging = true;
-      hatDragState.lastPointerX = e.clientX;
-      hatDragState.lastPointerY = e.clientY;
+      e.stopPropagation();
+      el.setPointerCapture(e.pointerId);
+      dragging = true;
+      moved = false;
+      startX = lastX = e.clientX;
+      startY = lastY = e.clientY;
     });
 
     document.addEventListener('pointermove', (e) => {
-      if (!hatDragState.isDragging) return;
+      if (!dragging) return;
       e.preventDefault();
-      const dx = e.clientX - hatDragState.lastPointerX;
-      const dy = e.clientY - hatDragState.lastPointerY;
-      
-      const currentTop = parseFloat(getComputedStyle(hatEl).top) || 0;
-      const currentLeft = parseFloat(getComputedStyle(hatEl).left) || 0;
-
-      hatEl.style.left = (currentLeft + dx) + 'px';
-      hatEl.style.top = (currentTop + dy) + 'px';
-      
-      hatDragState.lastPointerX = e.clientX;
-      hatDragState.lastPointerY = e.clientY;
+      if (!moved && Math.hypot(e.clientX - startX, e.clientY - startY) > 4) {
+        moved = true;
+      }
+      if (moved) {
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        const currentTop = parseFloat(getComputedStyle(el).top) || 0;
+        const currentLeft = parseFloat(getComputedStyle(el).left) || 0;
+        el.style.left = (currentLeft + dx) + 'px';
+        el.style.top = (currentTop + dy) + 'px';
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
     });
 
-    document.addEventListener('pointerup', (e) => {
-      if (hatDragState.isDragging) {
-        hatDragState.isDragging = false;
-        state.hatTop = hatEl.style.top;
-        state.hatLeft = hatEl.style.left;
-        saveState();
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (moved) {
+        accessoryDragOccurred = true;
+        setTimeout(() => { accessoryDragOccurred = false; }, 0);
+        onSave(el.style.top, el.style.left);
       }
+    }
+
+    document.addEventListener('pointerup', endDrag);
+    document.addEventListener('pointercancel', endDrag);
+  }
+
+  function initHatDrag() {
+    makeAccessoryDraggable(els.hamsterHat, (top, left) => {
+      state.hatTop = top;
+      state.hatLeft = left;
+      saveState();
     });
   }
 
@@ -1406,45 +1429,11 @@ const HamsterPet = (() => {
     }
   }
 
-  const glassesDragState = {
-    isDragging: false,
-    lastPointerX: 0,
-    lastPointerY: 0,
-  };
-
   function initGlassesDrag() {
-    const glassesEl = els.hamsterGlasses;
-    glassesEl.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.target.setPointerCapture(e.pointerId);
-      glassesDragState.isDragging = true;
-      glassesDragState.lastPointerX = e.clientX;
-      glassesDragState.lastPointerY = e.clientY;
-    });
-
-    document.addEventListener('pointermove', (e) => {
-      if (!glassesDragState.isDragging) return;
-      e.preventDefault();
-      const dx = e.clientX - glassesDragState.lastPointerX;
-      const dy = e.clientY - glassesDragState.lastPointerY;
-      
-      const currentTop = parseFloat(getComputedStyle(glassesEl).top) || 0;
-      const currentLeft = parseFloat(getComputedStyle(glassesEl).left) || 0;
-
-      glassesEl.style.left = (currentLeft + dx) + 'px';
-      glassesEl.style.top = (currentTop + dy) + 'px';
-      
-      glassesDragState.lastPointerX = e.clientX;
-      glassesDragState.lastPointerY = e.clientY;
-    });
-
-    document.addEventListener('pointerup', (e) => {
-      if (glassesDragState.isDragging) {
-        glassesDragState.isDragging = false;
-        state.glassesTop = glassesEl.style.top;
-        state.glassesLeft = glassesEl.style.left;
-        saveState();
-      }
+    makeAccessoryDraggable(els.hamsterGlasses, (top, left) => {
+      state.glassesTop = top;
+      state.glassesLeft = left;
+      saveState();
     });
   }
 
