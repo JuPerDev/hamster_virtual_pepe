@@ -1203,7 +1203,6 @@ const HamsterPet = (() => {
 
   function openWardrobe() {
     if (state.currentAction) return;
-    playSound('select');
     
     // Highlight current hat
     els.hatOptions.forEach(btn => {
@@ -1218,7 +1217,6 @@ const HamsterPet = (() => {
   }
 
   function closeWardrobe() {
-    playSound('select');
     els.wardrobeModal.classList.remove('visible');
   }
 
@@ -1239,8 +1237,6 @@ const HamsterPet = (() => {
     setTimeout(() => {
       els.hamsterHat.style.transform = 'translateX(-50%)';
     }, 150);
-
-    playSound('select');
   }
 
   function applyHat(hatEmoji) {
