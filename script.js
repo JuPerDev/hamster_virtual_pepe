@@ -44,6 +44,8 @@ const HamsterPet = (() => {
         state.isSoundOn = parsed.isSoundOn !== undefined ? parsed.isSoundOn : true;
         state.birthTime = parsed.birthTime || Date.now();
         state.hat = parsed.hat || '';
+        state.hatTop = parsed.hatTop || null;
+        state.hatLeft = parsed.hatLeft || null;
 
         // Decay stats based on time away
         const minutesAway = (Date.now() - (parsed.lastSave || Date.now())) / 60000;
@@ -68,6 +70,8 @@ const HamsterPet = (() => {
         isSoundOn: state.isSoundOn,
         birthTime: state.birthTime,
         hat: state.hat,
+        hatTop: state.hatTop,
+        hatLeft: state.hatLeft,
         lastSave: Date.now(),
       }));
     } catch (e) {
@@ -1239,14 +1243,71 @@ const HamsterPet = (() => {
     }, 150);
   }
 
-  function applyHat(hatEmoji) {
-    if (hatEmoji) {
-      els.hamsterHat.textContent = hatEmoji;
+  function applyHat(hatValue) {
+    if (hatValue) {
+      if (hatValue.includes('.svg') || hatValue.includes('.png')) {
+        els.hamsterHat.textContent = '';
+        els.hamsterHat.style.backgroundImage = `url('${hatValue}')`;
+      } else {
+        els.hamsterHat.style.backgroundImage = 'none';
+        els.hamsterHat.textContent = hatValue;
+      }
       els.hamsterHat.style.display = 'block';
+
+      if (state.hatTop && state.hatLeft) {
+        els.hamsterHat.style.top = state.hatTop;
+        els.hamsterHat.style.left = state.hatLeft;
+      } else {
+        els.hamsterHat.style.top = '-90px';
+        els.hamsterHat.style.left = '50%';
+      }
     } else {
       els.hamsterHat.textContent = '';
+      els.hamsterHat.style.backgroundImage = 'none';
       els.hamsterHat.style.display = 'none';
     }
+  }
+
+  const hatDragState = {
+    isDragging: false,
+    lastPointerX: 0,
+    lastPointerY: 0,
+  };
+
+  function initHatDrag() {
+    const hatEl = els.hamsterHat;
+    hatEl.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.target.setPointerCapture(e.pointerId);
+      hatDragState.isDragging = true;
+      hatDragState.lastPointerX = e.clientX;
+      hatDragState.lastPointerY = e.clientY;
+    });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!hatDragState.isDragging) return;
+      e.preventDefault();
+      const dx = e.clientX - hatDragState.lastPointerX;
+      const dy = e.clientY - hatDragState.lastPointerY;
+      
+      const currentTop = parseFloat(getComputedStyle(hatEl).top) || 0;
+      const currentLeft = parseFloat(getComputedStyle(hatEl).left) || 0;
+
+      hatEl.style.left = (currentLeft + dx) + 'px';
+      hatEl.style.top = (currentTop + dy) + 'px';
+      
+      hatDragState.lastPointerX = e.clientX;
+      hatDragState.lastPointerY = e.clientY;
+    });
+
+    document.addEventListener('pointerup', (e) => {
+      if (hatDragState.isDragging) {
+        hatDragState.isDragging = false;
+        state.hatTop = hatEl.style.top;
+        state.hatLeft = hatEl.style.left;
+        saveState();
+      }
+    });
   }
 
   function init() {
@@ -1286,6 +1347,7 @@ const HamsterPet = (() => {
     // Init ball throw system
     initBall();
     initFoods();
+    initHatDrag();
 
     // Ensure voices are loaded
 
