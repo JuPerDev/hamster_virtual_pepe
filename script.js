@@ -204,20 +204,6 @@ const HamsterPet = (() => {
       hamsterScene: document.querySelector('.hamster-scene'),
       // Foods
       foods: document.querySelectorAll('.draggable-food'),
-      // Chat & AI
-      chatInput: document.getElementById('chat-input'),
-      chatSend: document.getElementById('chat-send'),
-      typingIndicator: document.getElementById('typing-indicator'),
-      settingsToggle: document.getElementById('settings-toggle'),
-      settingsModal: document.getElementById('settings-modal'),
-      apiKeyInput: document.getElementById('api-key-input'),
-      modelSelect: document.getElementById('gemini-model-select'),
-      modalCancel: document.getElementById('modal-cancel'),
-      modalSave: document.getElementById('modal-save'),
-      aiDot: document.getElementById('ai-dot'),
-      aiStatusText: document.getElementById('ai-status-text'),
-      memoryCount: document.getElementById('memory-count'),
-      memoryClear: document.getElementById('memory-clear'),
     };
   }
 
@@ -675,8 +661,8 @@ const HamsterPet = (() => {
   const ball = {
     isDragging: false,
     isFlying: false,
-    startX: 0,
-    startY: 0,
+    offsetX: 0,
+    offsetY: 0,
     currentX: 0,
     currentY: 0,
     velocityX: 0,
@@ -717,10 +703,10 @@ const HamsterPet = (() => {
     const rect = ballEl.getBoundingClientRect();
 
     ball.isDragging = true;
-    ball.startX = rect.left + rect.width / 2;
-    ball.startY = rect.top + rect.height / 2;
-    ball.currentX = ball.startX;
-    ball.currentY = ball.startY;
+    ball.offsetX = e.clientX - rect.left;
+    ball.offsetY = e.clientY - rect.top;
+    ball.currentX = rect.left;
+    ball.currentY = rect.top;
     ball.lastPointerX = e.clientX;
     ball.lastPointerY = e.clientY;
     ball.lastPointerTime = performance.now();
@@ -742,11 +728,9 @@ const HamsterPet = (() => {
     e.preventDefault();
 
     const ballEl = els.ball;
-    const dx = e.clientX - ball.lastPointerX;
-    const dy = e.clientY - ball.lastPointerY;
 
-    const newLeft = parseFloat(ballEl.style.left) + dx;
-    const newTop = parseFloat(ballEl.style.top) + dy;
+    const newLeft = e.clientX - ball.offsetX;
+    const newTop = e.clientY - ball.offsetY;
 
     ballEl.style.left = newLeft + 'px';
     ballEl.style.top = newTop + 'px';
@@ -969,8 +953,8 @@ const HamsterPet = (() => {
   let activeDraggedFood = null;
   const foodDragState = {
     isDragging: false,
-    startX: 0,
-    startY: 0,
+    offsetX: 0,
+    offsetY: 0,
     currentX: 0,
     currentY: 0,
     lastPointerX: 0,
@@ -1003,10 +987,10 @@ const HamsterPet = (() => {
     const rect = activeDraggedFood.getBoundingClientRect();
 
     foodDragState.isDragging = true;
-    foodDragState.startX = rect.left + rect.width / 2;
-    foodDragState.startY = rect.top + rect.height / 2;
-    foodDragState.currentX = foodDragState.startX;
-    foodDragState.currentY = foodDragState.startY;
+    foodDragState.offsetX = e.clientX - rect.left;
+    foodDragState.offsetY = e.clientY - rect.top;
+    foodDragState.currentX = rect.left;
+    foodDragState.currentY = rect.top;
     foodDragState.lastPointerX = e.clientX;
     foodDragState.lastPointerY = e.clientY;
 
@@ -1029,11 +1013,8 @@ const HamsterPet = (() => {
     if (!foodDragState.isDragging || !activeDraggedFood) return;
     e.preventDefault();
 
-    const dx = e.clientX - foodDragState.lastPointerX;
-    const dy = e.clientY - foodDragState.lastPointerY;
-
-    const newLeft = parseFloat(activeDraggedFood.style.left) + dx;
-    const newTop = parseFloat(activeDraggedFood.style.top) + dy;
+    const newLeft = e.clientX - foodDragState.offsetX;
+    const newTop = e.clientY - foodDragState.offsetY;
 
     activeDraggedFood.style.left = newLeft + 'px';
     activeDraggedFood.style.top = newTop + 'px';
