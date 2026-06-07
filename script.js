@@ -700,15 +700,12 @@ const HamsterPet = (() => {
     clearTimeout(state._ballHideTimer);
 
     const ballEl = els.ball;
-    const rect = ballEl.getBoundingClientRect();
-
-    const sceneRect = els.hamsterScene.getBoundingClientRect();
+    
+    // Get actual local coordinates before removing bottom/right
+    const startLeft = ballEl.offsetLeft;
+    const startTop = ballEl.offsetTop;
 
     ball.isDragging = true;
-    ball.offsetX = e.clientX - rect.left;
-    ball.offsetY = e.clientY - rect.top;
-    ball.currentX = rect.left;
-    ball.currentY = rect.top;
     ball.lastPointerX = e.clientX;
     ball.lastPointerY = e.clientY;
     ball.lastPointerTime = performance.now();
@@ -719,8 +716,8 @@ const HamsterPet = (() => {
 
     ballEl.style.right = 'auto';
     ballEl.style.bottom = 'auto';
-    ballEl.style.left = (rect.left - sceneRect.left) + 'px';
-    ballEl.style.top = (rect.top - sceneRect.top) + 'px';
+    ballEl.style.left = startLeft + 'px';
+    ballEl.style.top = startTop + 'px';
   }
 
   function onBallPointerMove(e) {
@@ -729,12 +726,17 @@ const HamsterPet = (() => {
 
     const ballEl = els.ball;
 
-    const sceneRect = els.hamsterScene.getBoundingClientRect();
-    const newLeft = e.clientX - ball.offsetX - sceneRect.left;
-    const newTop = e.clientY - ball.offsetY - sceneRect.top;
+    const dx = e.clientX - ball.lastPointerX;
+    const dy = e.clientY - ball.lastPointerY;
+
+    const newLeft = parseFloat(ballEl.style.left) + dx;
+    const newTop = parseFloat(ballEl.style.top) + dy;
 
     ballEl.style.left = newLeft + 'px';
     ballEl.style.top = newTop + 'px';
+
+    ball.lastPointerX = e.clientX;
+    ball.lastPointerY = e.clientY;
 
     // Track velocity history (last 5 points)
     const now = performance.now();
@@ -787,45 +789,6 @@ const HamsterPet = (() => {
 
   function animateBallFlight() {
     const ballEl = els.ball;
-    const gravity = 1200;  // px/s²
-    const bounce = 0.5;
-    const friction = 0.98;
-    let lastTime = performance.now();
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
-    const ballSize = 36;
-
-    function step(now) {
-      const dt = Math.min((now - lastTime) / 1000, 0.05);
-      lastTime = now;
-
-      // Apply gravity
-      ball.velocityY += gravity * dt;
-
-      // Apply friction
-      ball.velocityX *= friction;
-
-      // Move
-      let bx = parseFloat(ballEl.style.left) + ball.velocityX * dt;
-      let by = parseFloat(ballEl.style.top) + ball.velocityY * dt;
-
-      // Bounce off walls
-      if (bx < 0) { bx = 0; ball.velocityX = Math.abs(ball.velocityX) * bounce; }
-      if (bx > viewW - ballSize) { bx = viewW - ballSize; ball.velocityX = -Math.abs(ball.velocityX) * bounce; }
-
-      // Bounce off floor
-      if (by > viewH - ballSize) {
-        by = viewH - ballSize;
-        ball.velocityY = -Math.abs(ball.velocityY) * bounce;
-        ball.velocityX *= 0.9; // floor friction
-
-        // Stop if barely moving
-        if (Math.abs(ball.velocityY) < 30) {
-          ball.velocityY = 0;
-        }
-      }
-
-      // Bounce off ceiling
     const ballSize = 30;
     const sceneRect = els.hamsterScene.getBoundingClientRect();
     
@@ -1000,14 +963,11 @@ const HamsterPet = (() => {
     e.target.setPointerCapture(e.pointerId);
 
     activeDraggedFood = e.currentTarget;
-    const rect = activeDraggedFood.getBoundingClientRect();
-    const sceneRect = els.hamsterScene.getBoundingClientRect();
+
+    const startLeft = activeDraggedFood.offsetLeft;
+    const startTop = activeDraggedFood.offsetTop;
 
     foodDragState.isDragging = true;
-    foodDragState.offsetX = e.clientX - rect.left;
-    foodDragState.offsetY = e.clientY - rect.top;
-    foodDragState.currentX = rect.left;
-    foodDragState.currentY = rect.top;
     foodDragState.lastPointerX = e.clientX;
     foodDragState.lastPointerY = e.clientY;
 
@@ -1016,8 +976,8 @@ const HamsterPet = (() => {
 
     activeDraggedFood.style.right = 'auto';
     activeDraggedFood.style.bottom = 'auto';
-    activeDraggedFood.style.left = (rect.left - sceneRect.left) + 'px';
-    activeDraggedFood.style.top = (rect.top - sceneRect.top) + 'px';
+    activeDraggedFood.style.left = startLeft + 'px';
+    activeDraggedFood.style.top = startTop + 'px';
 
     // Cancel the foods hiding countdown when user drags one
     clearTimeout(state._foodHideTimer);
@@ -1028,9 +988,11 @@ const HamsterPet = (() => {
     if (!foodDragState.isDragging || !activeDraggedFood) return;
     e.preventDefault();
 
-    const sceneRect = els.hamsterScene.getBoundingClientRect();
-    const newLeft = e.clientX - foodDragState.offsetX - sceneRect.left;
-    const newTop = e.clientY - foodDragState.offsetY - sceneRect.top;
+    const dx = e.clientX - foodDragState.lastPointerX;
+    const dy = e.clientY - foodDragState.lastPointerY;
+
+    const newLeft = parseFloat(activeDraggedFood.style.left) + dx;
+    const newTop = parseFloat(activeDraggedFood.style.top) + dy;
 
     activeDraggedFood.style.left = newLeft + 'px';
     activeDraggedFood.style.top = newTop + 'px';
@@ -1076,10 +1038,8 @@ const HamsterPet = (() => {
     foodEl.classList.remove('dragging');
     els.hamster.classList.remove('mouth-open');
 
-    const rect = foodEl.getBoundingClientRect();
-    const sceneRect = els.hamsterScene.getBoundingClientRect();
-    const relLeft = rect.left - sceneRect.left;
-    const relTop = rect.top - sceneRect.top;
+    const relLeft = parseFloat(foodEl.style.left);
+    const relTop = parseFloat(foodEl.style.top);
     const collides = checkHamsterCollision(relLeft, relTop, 36);
 
     if (collides && !state.currentAction) {
