@@ -1664,11 +1664,11 @@ body::before {
 /* --- Wardrobe & Hat --- */
 .hamster-hat {
   position: absolute;
-  top: -90px;
+  top: -120px;
   left: 50%;
   transform: translateX(-50%);
-  width: 150px;
-  height: 150px;
+  width: 220px;
+  height: 220px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1676,6 +1676,7 @@ body::before {
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
   pointer-events: auto;
   cursor: grab;
+  touch-action: none;
 }
 .hamster-hat:active {
   cursor: grabbing;
