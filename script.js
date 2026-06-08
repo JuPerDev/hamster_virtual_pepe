@@ -1197,9 +1197,9 @@ const HamsterPet = (() => {
 
       // Make them pulse sequentially
       foodEl.animate([
-        { transform: 'scale(1)' },
-        { transform: 'scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
-        { transform: 'scale(1)' }
+        { transform: 'translateZ(45px) scale(1)' },
+        { transform: 'translateZ(45px) scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
+        { transform: 'translateZ(45px) scale(1)' }
       ], {
         duration: 800,
         delay: idx * 150,
