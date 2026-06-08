@@ -219,6 +219,7 @@ const HamsterPet = (() => {
       hamsterScene: document.querySelector('.hamster-scene'),
       // Foods
       foods: document.querySelectorAll('.draggable-food'),
+      foodTray: document.getElementById('food-tray'),
       // Wardrobe
       hamsterHat: document.getElementById('hamster-hat'),
       wardrobeModal: document.getElementById('wardrobe-modal'),
@@ -277,14 +278,12 @@ const HamsterPet = (() => {
   }
 
   // --- Bubble ---
+  // Speech bubble text is intentionally disabled (voice-only experience).
+  // The function is kept so every caller keeps working, but the bubble is
+  // never shown. Audio still plays through speak()/playPhraseAudio().
   function showBubble(text, duration = 4000) {
-    els.speechText.textContent = text;
-    els.speechBubble.classList.add('visible');
-
+    els.speechBubble.classList.remove('visible');
     clearTimeout(state._bubbleTimer);
-    state._bubbleTimer = setTimeout(() => {
-      els.speechBubble.classList.remove('visible');
-    }, duration);
   }
 
   function say(category) {
@@ -983,25 +982,12 @@ const HamsterPet = (() => {
   let activeDraggedFood = null;
   const foodDragState = {
     isDragging: false,
-    offsetX: 0,
-    offsetY: 0,
-    currentX: 0,
-    currentY: 0,
-    lastPointerX: 0,
-    lastPointerY: 0,
-    origins: {}
+    grabX: 0,
+    grabY: 0
   };
 
   function initFoods() {
-    const foodEls = document.querySelectorAll('.draggable-food');
-    foodEls.forEach(el => {
-      // Foods start hidden (display:none), so offsetLeft/Top would be 0.
-      // Read the home position from the inline styles instead.
-      foodDragState.origins[el.id] = {
-        left: parseFloat(el.style.left) || 0,
-        bottom: parseFloat(el.style.bottom) || 30
-      };
-
+    els.foods.forEach(el => {
       el.addEventListener('pointerdown', onFoodPointerDown);
     });
 
@@ -1010,58 +996,57 @@ const HamsterPet = (() => {
     document.addEventListener('pointercancel', onFoodPointerUp);
   }
 
+  // True when the food's center is over the hamster. Uses live bounding
+  // rects so it works no matter where the food lives in the layout.
+  function foodOverHamster(foodEl) {
+    const f = foodEl.getBoundingClientRect();
+    const h = els.hamster.getBoundingClientRect();
+    const fcx = f.left + f.width / 2;
+    const fcy = f.top + f.height / 2;
+    const hcx = h.left + h.width / 2;
+    const hcy = h.top + h.height / 2;
+    const dist = Math.hypot(fcx - hcx, fcy - hcy);
+    return dist < (h.width / 2 + f.width / 2 + 5);
+  }
+
   function onFoodPointerDown(e) {
     if (state.currentAction) return;
     e.preventDefault();
     activeDraggedFood = e.currentTarget;
     activeDraggedFood.setPointerCapture(e.pointerId);
 
-    const startLeft = activeDraggedFood.offsetLeft;
-    const startTop = activeDraggedFood.offsetTop;
-
+    // Remember where inside the food the user grabbed, then lift it into
+    // fixed (viewport) space so it follows the pointer 1:1 on mouse + touch.
+    const rect = activeDraggedFood.getBoundingClientRect();
+    foodDragState.grabX = e.clientX - rect.left;
+    foodDragState.grabY = e.clientY - rect.top;
     foodDragState.isDragging = true;
-    foodDragState.lastPointerX = e.clientX;
-    foodDragState.lastPointerY = e.clientY;
 
     activeDraggedFood.classList.add('dragging');
     activeDraggedFood.classList.remove('hint');
 
-    activeDraggedFood.style.right = 'auto';
-    activeDraggedFood.style.bottom = 'auto';
-    activeDraggedFood.style.left = startLeft + 'px';
-    activeDraggedFood.style.top = startTop + 'px';
+    activeDraggedFood.style.margin = '0';
+    activeDraggedFood.style.left = rect.left + 'px';
+    activeDraggedFood.style.top = rect.top + 'px';
 
     // Cancel the foods hiding countdown when user drags one
     clearTimeout(state._foodHideTimer);
   }
 
-  // Check collision with hamster to open mouth
+  // Move the food and open the mouth when it reaches the hamster.
   function onFoodPointerMove(e) {
     if (!foodDragState.isDragging || !activeDraggedFood) return;
     e.preventDefault();
 
-    const dx = e.clientX - foodDragState.lastPointerX;
-    const dy = e.clientY - foodDragState.lastPointerY;
+    activeDraggedFood.style.left = (e.clientX - foodDragState.grabX) + 'px';
+    activeDraggedFood.style.top = (e.clientY - foodDragState.grabY) + 'px';
 
-    const newLeft = parseFloat(activeDraggedFood.style.left) + dx;
-    const newTop = parseFloat(activeDraggedFood.style.top) + dy;
-
-    activeDraggedFood.style.left = newLeft + 'px';
-    activeDraggedFood.style.top = newTop + 'px';
-
-    foodDragState.lastPointerX = e.clientX;
-    foodDragState.lastPointerY = e.clientY;
-
-    // Check collision with hamster to open mouth
-    const size = 36;
-    const collides = checkHamsterCollision(newLeft, newTop, size);
-    if (collides && !state.currentAction) {
+    if (foodOverHamster(activeDraggedFood) && !state.currentAction) {
       els.hamster.classList.add('mouth-open');
     } else {
       els.hamster.classList.remove('mouth-open');
     }
 
-    // Spawn trail
     spawnFoodTrail(e.clientX, e.clientY, activeDraggedFood.dataset.food);
   }
 
@@ -1087,16 +1072,10 @@ const HamsterPet = (() => {
     const foodEl = activeDraggedFood;
     activeDraggedFood = null;
 
-    foodEl.classList.remove('dragging');
     els.hamster.classList.remove('mouth-open');
 
-    const relLeft = parseFloat(foodEl.style.left);
-    const relTop = parseFloat(foodEl.style.top);
-    const collides = checkHamsterCollision(relLeft, relTop, 36);
-
-    if (collides && !state.currentAction) {
+    if (foodOverHamster(foodEl) && !state.currentAction) {
       if (state.stats.hunger >= 100) {
-        showBubble('¡Ya estoy llenito, chicas! 🐹');
         speak('Ya estoy llenito, chicas');
         resetFoodPosition(foodEl);
         // Wait 3 seconds and hide all
@@ -1157,24 +1136,13 @@ const HamsterPet = (() => {
   }
 
   function resetFoodPosition(foodEl) {
+    // Drop back into the tray's flex row by clearing the drag styles.
     foodEl.classList.remove('dragging');
-
-    // Restore the home position captured at init, converting the
-    // bottom-anchored origin into a top value relative to the current
-    // scene size so it stays correct on every screen (incl. mobile).
-    const home = foodDragState.origins[foodEl.id] || { left: 50, bottom: 30 };
-    const targetTop = els.hamsterScene.clientHeight - foodEl.offsetHeight - home.bottom;
-
-    foodEl.style.right = 'auto';
-    foodEl.style.bottom = 'auto';
-    foodEl.style.transition = 'left 0.5s cubic-bezier(0.34,1.56,0.64,1), top 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-    foodEl.style.left = home.left + 'px';
-    foodEl.style.top = targetTop + 'px';
-
-    setTimeout(() => {
-      foodEl.style.transition = '';
-      foodEl.classList.add('hint');
-    }, 550);
+    foodEl.style.left = '';
+    foodEl.style.top = '';
+    foodEl.style.margin = '';
+    foodEl.style.transition = '';
+    foodEl.classList.add('hint');
   }
 
   function onFeedBtnClick() {
@@ -1197,9 +1165,9 @@ const HamsterPet = (() => {
 
       // Make them pulse sequentially
       foodEl.animate([
-        { transform: 'translateZ(45px) scale(1)' },
-        { transform: 'translateZ(45px) scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
-        { transform: 'translateZ(45px) scale(1)' }
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.3)', boxShadow: '0 0 20px rgba(255,203,44,0.8)' },
+        { transform: 'scale(1)' }
       ], {
         duration: 800,
         delay: idx * 150,
@@ -1209,8 +1177,6 @@ const HamsterPet = (() => {
 
     // Auto-hide foods in 10 seconds of inactivity
     state._foodHideTimer = setTimeout(hideFoods, 10000);
-
-    showBubble('¡Arrastra la comida a mi boquita para alimentarme! 🌻🥕🧀', 4000);
   }
 
   function hideFoods() {

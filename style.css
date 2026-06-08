@@ -1491,17 +1491,25 @@ body::before {
    Draggable Foods
    ======================================== */
 
+/* Food tray sits below Pepe so the food never overlaps his body. */
+.food-tray {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  min-height: 40px;
+  padding-bottom: 22px;
+  margin-top: 6px;
+  position: relative;
+}
+
 .draggable-food {
-  position: absolute;
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   cursor: grab;
   z-index: 50;
-  /* The scene uses transform-style: preserve-3d, so z-index is ignored and
-     siblings are sorted by their Z position. Push foods in front of the
-     hamster parts that stick out (paws ~20px, nose/whiskers ~35px). */
-  transform: translateZ(45px);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -1510,6 +1518,11 @@ body::before {
   align-items: center;
   justify-content: center;
   font-size: 20px;
+}
+
+/* While being dragged the food is lifted into viewport space. */
+.draggable-food.dragging {
+  position: fixed;
 }
 
 .draggable-food.seed-food {
@@ -1537,7 +1550,7 @@ body::before {
 }
 
 .draggable-food:hover {
-  transform: translateZ(45px) scale(1.08);
+  transform: scale(1.08);
 }
 
 .draggable-food.seed-food:hover {
@@ -1552,7 +1565,8 @@ body::before {
 
 .draggable-food.dragging {
   cursor: grabbing;
-  transform: translateZ(45px) scale(1.2) !important;
+  z-index: 999;
+  transform: scale(1.2) !important;
 }
 
 .draggable-food.seed-food.dragging { box-shadow: 0 8px 25px rgba(255, 203, 44, 0.6); }
@@ -1573,8 +1587,8 @@ body::before {
 }
 
 @keyframes foodHint {
-  0%, 100% { transform: translateZ(45px) scale(1); }
-  50% { transform: translateZ(45px) scale(1.08); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .food-label {

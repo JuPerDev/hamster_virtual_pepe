@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Mascota virtual hámster interactiva — aliméntala, juega, y escúchala hablar. Gratis y sin registro.">
   <title>🐹 Mi Hámster Virtual</title>
-  <link rel="stylesheet" href="style.css?v=20260607-6">
+  <link rel="stylesheet" href="style.css?v=20260607-7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
 </head>
 <body>
@@ -60,20 +60,22 @@
         <span class="zzz">Z</span>
       </div>
 
-      <!-- Draggable Foods -->
-      <div class="draggable-food seed-food hint" id="food-seed" data-food="seed" style="display: none; left: 50px; bottom: 30px;">
-        🌻<span class="food-label">Semilla</span>
-      </div>
-      <div class="draggable-food carrot-food hint" id="food-carrot" data-food="carrot" style="display: none; left: 120px; bottom: 30px;">
-        🥕<span class="food-label">Zanahoria</span>
-      </div>
-      <div class="draggable-food cheese-food hint" id="food-cheese" data-food="cheese" style="display: none; left: 190px; bottom: 30px;">
-        🧀<span class="food-label">Quesito</span>
-      </div>
-
       <!-- Throwable Ball -->
       <div class="ball hint" id="throwable-ball" style="display: none; right: 10px; bottom: 30px;">
         <span class="ball-label">¡Lánzame!</span>
+      </div>
+    </div>
+
+    <!-- Food Tray (sits below Pepe, not over his body) -->
+    <div class="food-tray" id="food-tray">
+      <div class="draggable-food seed-food hint" id="food-seed" data-food="seed" style="display: none;">
+        🌻<span class="food-label">Semilla</span>
+      </div>
+      <div class="draggable-food carrot-food hint" id="food-carrot" data-food="carrot" style="display: none;">
+        �<span class="food-label">Zanahoria</span>
+      </div>
+      <div class="draggable-food cheese-food hint" id="food-cheese" data-food="cheese" style="display: none;">
+        🧀<span class="food-label">Quesito</span>
       </div>
     </div>
 
@@ -210,6 +212,6 @@
 
   </div>
 
-  <script src="script.js?v=20260607-6"></script>
+  <script src="script.js?v=20260607-7"></script>
 </body>
 </html>
