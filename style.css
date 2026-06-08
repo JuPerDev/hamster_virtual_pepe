@@ -1730,7 +1730,7 @@ body::before {
 
 .hat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 15px;
   margin: 20px 0;
 }
@@ -1746,6 +1746,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 78px;
 }
 
 .hat-option:hover, .glasses-option:hover {

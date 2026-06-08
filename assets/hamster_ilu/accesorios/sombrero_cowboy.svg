@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="250" viewBox="120 90 620 250">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .lineThin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    
+<path d="M186 250 C233 223, 313 210, 380 218 C408 221, 454 221, 480 219 C553 213, 632 224, 678 250 C707 266, 705 295, 665 303 C601 316, 537 298, 486 285 C450 276, 409 276, 373 285 C322 298, 258 316, 194 303 C155 295, 153 266, 186 250 Z" fill="#7c4a26" class="line"/>
+<path d="M309 239 C298 171, 337 118, 430 118 C523 118, 562 171, 551 239 Z" fill="#9a5c31" class="line"/>
+<path d="M344 241 C360 197, 399 169, 430 169 C461 169, 500 197, 516 241" fill="#f0b84d" class="lineThin"/>
+<path d="M325 164 C361 136, 500 136, 535 164" fill="none" class="lineThin" opacity="0.25"/>
+
+  </g>
+</svg>
