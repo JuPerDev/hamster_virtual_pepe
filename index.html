@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Mascota virtual hámster interactiva — aliméntala, juega, y escúchala hablar. Gratis y sin registro.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
   <title>🐹 Mi Hámster Virtual</title>
-  <link rel="stylesheet" href="style.css?v=20260607-7">
+  <link rel="stylesheet" href="style.css?v=20260622-3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
 </head>
 <body>
@@ -13,7 +16,7 @@
   <!-- Volume Toggle -->
   <button class="volume-toggle" id="volume-toggle" aria-label="Activar/desactivar sonido">🔊</button>
 
-  <div class="app-container">
+  <main class="app-container">
 
     <!-- Header -->
     <header class="header">
@@ -40,8 +43,7 @@
 
     <!-- Hamster Scene -->
     <div class="hamster-scene">
-      <div class="hamster idle" id="hamster">
-        <canvas class="hamster-3d-canvas" id="hamster-3d-canvas" aria-hidden="true"></canvas>
+      <div class="hamster idle" id="hamster" role="button" tabindex="0" aria-label="Hámster Pepe — haz clic para acariciarlo">
         <!-- Body -->
         <div class="hamster-body">
           <div class="hamster-ilu"></div>
@@ -72,20 +74,10 @@
         🌻<span class="food-label">Semilla</span>
       </div>
       <div class="draggable-food carrot-food hint" id="food-carrot" data-food="carrot" style="display: none;">
-        �<span class="food-label">Zanahoria</span>
+        🥕<span class="food-label">Zanahoria</span>
       </div>
       <div class="draggable-food cheese-food hint" id="food-cheese" data-food="cheese" style="display: none;">
         🧀<span class="food-label">Quesito</span>
-      </div>
-    </div>
-
-    <!-- Speech Bubble -->
-    <div class="speech-bubble" id="speech-bubble">
-      <span id="speech-text">...</span>
-      <div class="typing-indicator" id="typing-indicator">
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
       </div>
     </div>
 
@@ -161,7 +153,7 @@
       </button>
     </div>
 
-    </div>
+    </main>
 
     <!-- Wardrobe Modal -->
     <div class="modal-overlay" id="wardrobe-modal">
@@ -170,27 +162,27 @@
         <p>¡Elige un gorrito para tu hámster!</p>
         
         <div class="hat-grid">
-          <button class="hat-option" data-hat="">🚫</button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_brujo.svg">
-            <img src="assets/hamster_ilu/accesorios/gorro_brujo.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="" aria-label="Sin gorro">🚫</button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_brujo.svg" aria-label="Gorro de brujo">
+            <img src="assets/hamster_ilu/accesorios/gorro_brujo.svg" alt="Gorro de brujo" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/corona_dorada.svg">
-            <img src="assets/hamster_ilu/accesorios/corona_dorada.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/corona_dorada.svg" aria-label="Corona dorada">
+            <img src="assets/hamster_ilu/accesorios/corona_dorada.svg" alt="Corona dorada" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorra_urbana.svg">
-            <img src="assets/hamster_ilu/accesorios/gorra_urbana.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorra_urbana.svg" aria-label="Gorra urbana">
+            <img src="assets/hamster_ilu/accesorios/gorra_urbana.svg" alt="Gorra urbana" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_lana_magenta.svg">
-            <img src="assets/hamster_ilu/accesorios/gorro_lana_magenta.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_lana_magenta.svg" aria-label="Gorro de lana magenta">
+            <img src="assets/hamster_ilu/accesorios/gorro_lana_magenta.svg" alt="Gorro de lana magenta" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_navideno.svg">
-            <img src="assets/hamster_ilu/accesorios/gorro_navideno.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_navideno.svg" aria-label="Gorro navideño">
+            <img src="assets/hamster_ilu/accesorios/gorro_navideno.svg" alt="Gorro navideño" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_copa_profesional.svg">
-            <img src="assets/hamster_ilu/accesorios/sombrero_copa_profesional.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_copa_profesional.svg" aria-label="Sombrero de copa">
+            <img src="assets/hamster_ilu/accesorios/sombrero_copa_profesional.svg" alt="Sombrero de copa" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_cowboy.svg">
-            <img src="assets/hamster_ilu/accesorios/sombrero_cowboy.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_cowboy.svg" aria-label="Sombrero de cowboy">
+            <img src="assets/hamster_ilu/accesorios/sombrero_cowboy.svg" alt="Sombrero de cowboy" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
         </div>
 
@@ -207,18 +199,18 @@
         <p>¡Elige unos lentes para tu hámster!</p>
         
         <div class="hat-grid" id="glasses-grid">
-          <button class="glasses-option" data-glasses="">🚫</button>
-          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/celestes.svg">
-            <img src="assets/hamster_ilu/lentes/celestes.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="glasses-option" data-glasses="" aria-label="Sin lentes">🚫</button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/celestes.svg" aria-label="Lentes celestes">
+            <img src="assets/hamster_ilu/lentes/celestes.svg" alt="Lentes celestes" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/estrella.svg">
-            <img src="assets/hamster_ilu/lentes/estrella.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/estrella.svg" aria-label="Lentes de estrella">
+            <img src="assets/hamster_ilu/lentes/estrella.svg" alt="Lentes de estrella" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/negros.svg">
-            <img src="assets/hamster_ilu/lentes/negros.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/negros.svg" aria-label="Lentes negros">
+            <img src="assets/hamster_ilu/lentes/negros.svg" alt="Lentes negros" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
-          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/rojos.svg">
-            <img src="assets/hamster_ilu/lentes/rojos.svg" style="width: 50px; height: 50px; pointer-events: none;">
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/rojos.svg" aria-label="Lentes rojos">
+            <img src="assets/hamster_ilu/lentes/rojos.svg" alt="Lentes rojos" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
         </div>
 
@@ -228,8 +220,6 @@
       </div>
     </div>
 
-  </div>
-
-  <script src="script.js?v=20260608-1"></script>
+  <script src="script.js?v=20260622-3"></script>
 </body>
 </html>

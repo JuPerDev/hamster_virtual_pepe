@@ -1,10 +1,10 @@
-# 🐹 Bolita — Frases y Sonidos
+# 🐹 PEPE — Frases y Sonidos
 
 **Familia:** Pepe (papá), Abby y Pascal (hijas)
 
 ---
 
-## IDLE — `idle_1.mp3` a `idle_9.mp3`
+## IDLE — `idle_1.mp3` a `idle_8.mp3`
 
 | Archivo | Texto |
 |---|---|
@@ -16,7 +16,6 @@
 | idle_6 | Corre en su rueda. ¡Miren, Abby! ¡Soy rápido! |
 | idle_7 | ¿Tienes semillitas, Pascal? |
 | idle_8 | Se acicala el pelito. Quiero verme bonito para Abby y Pascal |
-| idle_9 | ¡Squeak! ¡Pepe! ¡Mi humano favorito! |
 
 ## HUNGRY — `hungry_1.mp3` a `hungry_5.mp3`
 
@@ -105,8 +104,6 @@
 | petted_4 | Ronronea en las manos de Abby |
 | petted_5 | ¡Me encantan las caricias de Pascal! |
 
-> ⚠️ Nota: petted_4 y petted_5 están guardados como `patted_4.mp3` y `patted_5.mp3` (typo)
-
 ## CLEAN — `clean_1.mp3` a `clean_4.mp3`
 
 | Archivo | Texto |
@@ -143,13 +140,5 @@
 | inline_tired | Chicas, estoy muy cansadito... |
 | inline_awake | ¡Abby, Pascal, desperté con energía! |
 | inline_clean | ¡Chicas, ya estoy limpiecito! |
-| inline_ai_on | ¡Abby, Pascal, ahora puedo pensar y recordar! |
-| inline_amnesia | ¿Abby? ¿Pascal? ¿Dónde estoy? |
 
 ---
-
-## 🆕 Pendientes por generar
-
-| Archivo | Texto |
-|---|---|
-| idle_9 | ¡Squeak! ¡Pepe! ¡Mi humano favorito! |

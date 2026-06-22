@@ -5,7 +5,7 @@
 const HamsterPet = (() => {
   // --- State ---
   const state = {
-    name: 'Bolita',
+    name: 'PEPE',
     stats: {
       hunger: 80,
       happiness: 70,
@@ -18,13 +18,6 @@ const HamsterPet = (() => {
     currentAction: null,
     birthTime: Date.now(),
     lastUpdate: Date.now(),
-    // AI
-    apiKey: '',
-    geminiModel: 'gemini-2.0-flash',
-    chatHistory: [],      // {role, text} for Gemini context
-    memories: [],          // persistent facts the hamster remembers
-    isAiEnabled: false,
-    isAiThinking: false,
     // Walking
     positionX: 0,
     facingDirection: 1,
@@ -49,6 +42,13 @@ const HamsterPet = (() => {
         state.glasses = parsed.glasses || '';
         state.glassesTop = parsed.glassesTop || null;
         state.glassesLeft = parsed.glassesLeft || null;
+
+        // Migrate glasses position from v1 (220px box) to v2 (90px box):
+        // drawing shifted up 65px, so add 65 to saved top.
+        if (parsed.cfgVer !== 2 && state.glassesTop) {
+          const oldTop = parseFloat(state.glassesTop);
+          if (!isNaN(oldTop)) state.glassesTop = (oldTop + 65) + 'px';
+        }
 
         // Decay stats based on time away
         const minutesAway = (Date.now() - (parsed.lastSave || Date.now())) / 60000;
@@ -78,6 +78,7 @@ const HamsterPet = (() => {
         glasses: state.glasses,
         glassesTop: state.glassesTop,
         glassesLeft: state.glassesLeft,
+        cfgVer: 2,
         lastSave: Date.now(),
       }));
     } catch (e) {
@@ -96,7 +97,6 @@ const HamsterPet = (() => {
       '*corre en su rueda* ¡Miren, Abby! ¡Soy rápido!',
       '¿Tienes semillitas, Pascal? 🌻',
       '*se acicala el pelito* Quiero verme bonito para Abby y Pascal',
-      '¡Squeak! ¡Pepe! ¡Mi humano favorito! 🐹',
     ],
     hungry: [
       '¡Abby, tengo hambreeee! 🥺',
@@ -185,8 +185,6 @@ const HamsterPet = (() => {
   function cacheDom() {
     els = {
       hamster: document.getElementById('hamster'),
-      speechBubble: document.getElementById('speech-bubble'),
-      speechText: document.getElementById('speech-text'),
       nameInput: document.getElementById('pet-name-input'),
       volumeToggle: document.getElementById('volume-toggle'),
       moodEmoji: document.getElementById('mood-emoji'),
@@ -236,6 +234,9 @@ const HamsterPet = (() => {
 
   // --- Audio System ---
   let currentAudio = null;
+  let tickInterval = null;
+  let saveInterval = null;
+  let initDone = false;
 
   function playAudio(src) {
     if (!state.isSoundOn) return;
@@ -265,9 +266,7 @@ const HamsterPet = (() => {
     'Ya estoy llenito, chicas': 'sounds/inline_full.mp3',
     'Chicas, estoy muy cansadito': 'sounds/inline_tired.mp3',
     'Abby, Pascal, desperté con energía': 'sounds/inline_awake.mp3',
-    'Chicas, ya estoy limpiecito': 'sounds/inline_clean.mp3',
-    'Abby, Pascal, ahora puedo pensar y recordar': 'sounds/inline_ai_on.mp3',
-    '¿Abby? ¿Pascal? ¿Dónde estoy?': 'sounds/inline_amnesia.mp3'
+    'Chicas, ya estoy limpiecito': 'sounds/inline_clean.mp3'
   };
 
   function speak(text) {
@@ -277,26 +276,15 @@ const HamsterPet = (() => {
     }
   }
 
-  // --- Bubble ---
-  // Speech bubble text is intentionally disabled (voice-only experience).
-  // The function is kept so every caller keeps working, but the bubble is
-  // never shown. Audio still plays through speak()/playPhraseAudio().
-  function showBubble(text, duration = 4000) {
-    els.speechBubble.classList.remove('visible');
-    clearTimeout(state._bubbleTimer);
-  }
-
   function say(category) {
     const list = phrases[category] || phrases.idle;
     const index = Math.floor(Math.random() * list.length);
-    const text = list[index];
-    showBubble(text);
     playPhraseAudio(category, index);
   }
 
   // --- Particles ---
   function spawnParticles(emoji, count = 5) {
-    const scene = document.querySelector('.hamster-scene');
+    const scene = els.hamsterScene;
     const rect = scene.getBoundingClientRect();
 
     for (let i = 0; i < count; i++) {
@@ -405,11 +393,10 @@ const HamsterPet = (() => {
   function updateIdleState() {
     if (state.currentAction) return;
 
-    const { hunger, happiness, energy, cleanliness } = state.stats;
+    const { energy } = state.stats;
 
     if (energy < 15) {
-      els.hamster.classList.add('sleeping');
-      els.zzzContainer.style.display = 'block';
+      sleep();
     } else {
       els.hamster.classList.remove('sleeping');
       els.zzzContainer.style.display = 'none';
@@ -424,7 +411,7 @@ const HamsterPet = (() => {
   }
 
   function startWalking() {
-    if (state.currentAction || state.isSpeaking || state.isAiThinking) return;
+    if (state.currentAction || state.isSpeaking) return;
 
     const targetX = (Math.random() * 36) - 18;
 
@@ -467,7 +454,6 @@ const HamsterPet = (() => {
 
   function feed() {
     if (state.stats.hunger >= 100) {
-      showBubble('¡Ya estoy llenito, chicas! 🐹');
       speak('Ya estoy llenito, chicas');
       return;
     }
@@ -494,7 +480,6 @@ const HamsterPet = (() => {
 
   function play() {
     if (state.stats.energy < 10) {
-      showBubble('Chicas, estoy muy cansadito... 😴');
       speak('Chicas, estoy muy cansadito');
       return;
     }
@@ -505,6 +490,8 @@ const HamsterPet = (() => {
     const ballEl = els.ball;
     if (ballEl) {
       ballEl.style.display = 'block';
+      ball.originX = ballEl.offsetLeft;
+      ball.originY = ballEl.offsetTop;
       ballEl.style.opacity = '0';
       ballEl.classList.remove('hint');
       
@@ -521,7 +508,7 @@ const HamsterPet = (() => {
       state._ballHideTimer = setTimeout(hideBall, 10000);
     }
 
-    showBubble('¡Lánzame la pelota, chicas! 🎾', 4000);
+    say('playing');
     animateHamster('happy', 1500);
   }
 
@@ -537,8 +524,7 @@ const HamsterPet = (() => {
     els.zzzContainer.style.display = 'none';
     if (!silent) {
       animateHamster('bounce', 800);
-      showBubble('¡Desperté con mucha energía! ⚡');
-      speak('Desperté con mucha energía');
+      speak('Abby, Pascal, desperté con energía');
     }
     updateIdleState();
     saveState();
@@ -578,7 +564,6 @@ const HamsterPet = (() => {
 
   function clean() {
     if (state.stats.cleanliness >= 100) {
-      showBubble('¡Chicas, ya estoy limpiecito! ✨');
       speak('Chicas, ya estoy limpiecito');
       return;
     }
@@ -660,7 +645,7 @@ const HamsterPet = (() => {
     }
 
     // Random horizontal walk when idle, not speaking, and not thinking
-    if (Math.random() < 0.08 && !state.currentAction && !state.isSpeaking && !state.isAiThinking && state.stats.energy >= 15) {
+    if (Math.random() < 0.08 && !state.currentAction && !state.isSpeaking && state.stats.energy >= 15) {
       startWalking();
     }
 
@@ -701,7 +686,93 @@ const HamsterPet = (() => {
     if (newName) {
       state.name = newName;
       saveState();
+    } else {
+      e.target.value = state.name;
     }
+  }
+
+  // ========================================
+  //  UNIFIED DRAG HELPER
+  // ========================================
+  //
+  // A single pointer-drag primitive used by the ball, foods, and
+  // accessories. It:
+  //   - captures the pointer on the element (mouse + touch)
+  //   - uses a small movement threshold so taps/clicks still work
+  //   - tracks position in local variables (no getComputedStyle per move)
+  //   - neutralizes CSS transforms during the drag so the element
+  //     follows the pointer 1:1
+  //   - cleans up on up/cancel
+  //
+  // Options:
+  //   threshold  — px to move before "real" drag starts (default 0)
+  //   onDragStart(pointer) — called once when real drag begins (after threshold)
+  //   onDrag(pointer)      — called on each move (only after threshold)
+  //   onDragEnd(pointer, moved) — called on up/cancel; `moved` is true if
+  //                               the threshold was exceeded
+  //
+  // `pointer` is { x, y, dx, dy, startX, startY }
+  const dragState = { active: false, el: null, cleanup: null };
+
+  function makeDraggable(el, options = {}) {
+    const threshold = options.threshold ?? 0;
+    let dragging = false;
+    let moved = false;
+    let startX = 0, startY = 0;
+    let lastX = 0, lastY = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (dragState.active) return; // only one drag at a time
+      e.preventDefault();
+      e.stopPropagation();
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      dragging = true;
+      moved = false;
+      startX = lastX = e.clientX;
+      startY = lastY = e.clientY;
+    });
+
+    function onMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      if (!moved && threshold > 0) {
+        if (Math.hypot(e.clientX - startX, e.clientY - startY) > threshold) {
+          moved = true;
+          dragState.active = true;
+          dragState.el = el;
+          if (options.onDragStart) options.onDragStart({ x: e.clientX, y: e.clientY, dx: 0, dy: 0, startX, startY });
+        }
+      } else if (moved || threshold === 0) {
+        if (!moved) {
+          moved = true;
+          dragState.active = true;
+          dragState.el = el;
+          if (options.onDragStart) options.onDragStart({ x: e.clientX, y: e.clientY, dx: 0, dy: 0, startX, startY });
+        }
+        if (options.onDrag) options.onDrag({ x: e.clientX, y: e.clientY, dx, dy, startX, startY });
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
+    }
+
+    function onEnd(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (moved) {
+        if (options.onDragEnd) options.onDragEnd({ x: e.clientX, y: e.clientY, startX, startY }, true);
+      } else {
+        if (options.onDragEnd) options.onDragEnd({ x: e.clientX, y: e.clientY, startX, startY }, false);
+      }
+      dragState.active = false;
+      dragState.el = null;
+    }
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onEnd);
+    document.addEventListener('pointercancel', onEnd);
   }
 
   // ========================================
@@ -711,15 +782,8 @@ const HamsterPet = (() => {
   const ball = {
     isDragging: false,
     isFlying: false,
-    offsetX: 0,
-    offsetY: 0,
-    currentX: 0,
-    currentY: 0,
     velocityX: 0,
     velocityY: 0,
-    lastPointerX: 0,
-    lastPointerY: 0,
-    lastPointerTime: 0,
     history: [],       // recent pointer positions for velocity
     animFrame: null,
     originX: 0,        // original position in scene
@@ -730,116 +794,90 @@ const HamsterPet = (() => {
     const ballEl = els.ball;
     if (!ballEl) return;
 
-    // Store origin position
-    ball.originX = ballEl.offsetLeft;
-    ball.originY = ballEl.offsetTop;
+    let suppressed = false;
 
-    // Pointer events for drag
-    ballEl.addEventListener('pointerdown', onBallPointerDown);
-    document.addEventListener('pointermove', onBallPointerMove);
-    document.addEventListener('pointerup', onBallPointerUp);
-    document.addEventListener('pointercancel', onBallPointerUp);
-  }
+    makeDraggable(ballEl, {
+      onDragStart(pointer) {
+        if (ball.isFlying) { suppressed = true; return; }
+        suppressed = false;
+        clearTimeout(state._ballHideTimer);
 
-  function onBallPointerDown(e) {
-    if (ball.isFlying) return;
-    e.preventDefault();
-    e.target.setPointerCapture(e.pointerId);
-    
-    // Cancel the ball hiding countdown when user drags it
-    clearTimeout(state._ballHideTimer);
+        const sceneRect = els.hamsterScene.getBoundingClientRect();
+        const rect = ballEl.getBoundingClientRect();
+        const startLeft = rect.left - sceneRect.left;
+        const startTop = rect.top - sceneRect.top;
 
-    const ballEl = els.ball;
-    
-    // Get actual local coordinates before removing bottom/right
-    const startLeft = ballEl.offsetLeft;
-    const startTop = ballEl.offsetTop;
+        ball.isDragging = true;
+        ball.history = [];
 
-    ball.isDragging = true;
-    ball.lastPointerX = e.clientX;
-    ball.lastPointerY = e.clientY;
-    ball.lastPointerTime = performance.now();
-    ball.history = [];
+        ballEl.classList.add('dragging');
+        ballEl.classList.remove('hint');
+        ballEl.style.transition = '';
+        ballEl.style.right = 'auto';
+        ballEl.style.bottom = 'auto';
+        ballEl.style.left = startLeft + 'px';
+        ballEl.style.top = startTop + 'px';
+        ballEl.style.transform = 'none';
+      },
+      onDrag(pointer) {
+        if (suppressed || ball.isFlying) return;
+        const ballEl = els.ball;
+        const newLeft = parseFloat(ballEl.style.left) + pointer.dx;
+        const newTop = parseFloat(ballEl.style.top) + pointer.dy;
+        ballEl.style.left = newLeft + 'px';
+        ballEl.style.top = newTop + 'px';
 
-    ballEl.classList.add('dragging');
-    ballEl.classList.remove('hint');
+        const now = performance.now();
+        ball.history.push({ x: pointer.x, y: pointer.y, t: now });
+        if (ball.history.length > 6) ball.history.shift();
 
-    ballEl.style.right = 'auto';
-    ballEl.style.bottom = 'auto';
-    ballEl.style.left = startLeft + 'px';
-    ballEl.style.top = startTop + 'px';
-  }
+        spawnBallTrail(pointer.x, pointer.y);
+      },
+      onDragEnd(pointer, moved) {
+        if (suppressed) { suppressed = false; return; }
+        const ballEl = els.ball;
+        ball.isDragging = false;
+        ballEl.classList.remove('dragging');
 
-  function onBallPointerMove(e) {
-    if (!ball.isDragging) return;
-    e.preventDefault();
+        if (!moved) {
+          resetBallPosition();
+          state._ballHideTimer = setTimeout(hideBall, 4000);
+          return;
+        }
 
-    const ballEl = els.ball;
+        let vx = 0, vy = 0;
+        if (ball.history.length >= 2) {
+          const recent = ball.history.slice(-3);
+          const first = recent[0];
+          const last = recent[recent.length - 1];
+          const dt = (last.t - first.t) / 1000;
+          if (dt > 0.001) {
+            vx = (last.x - first.x) / dt;
+            vy = (last.y - first.y) / dt;
+          }
+        }
 
-    const dx = e.clientX - ball.lastPointerX;
-    const dy = e.clientY - ball.lastPointerY;
+        const speed = Math.sqrt(vx * vx + vy * vy);
 
-    const newLeft = parseFloat(ballEl.style.left) + dx;
-    const newTop = parseFloat(ballEl.style.top) + dy;
-
-    ballEl.style.left = newLeft + 'px';
-    ballEl.style.top = newTop + 'px';
-
-    ball.lastPointerX = e.clientX;
-    ball.lastPointerY = e.clientY;
-
-    // Track velocity history (last 5 points)
-    const now = performance.now();
-    ball.history.push({ x: e.clientX, y: e.clientY, t: now });
-    if (ball.history.length > 6) ball.history.shift();
-
-    ball.lastPointerX = e.clientX;
-    ball.lastPointerY = e.clientY;
-    ball.lastPointerTime = now;
-
-    // Spawn trail
-    spawnBallTrail(e.clientX, e.clientY);
-  }
-
-  function onBallPointerUp(e) {
-    if (!ball.isDragging) return;
-    ball.isDragging = false;
-
-    const ballEl = els.ball;
-    ballEl.classList.remove('dragging');
-
-    // Calculate throw velocity from pointer history
-    let vx = 0, vy = 0;
-    if (ball.history.length >= 2) {
-      const recent = ball.history.slice(-3);
-      const first = recent[0];
-      const last = recent[recent.length - 1];
-      const dt = (last.t - first.t) / 1000; // seconds
-      if (dt > 0.001) {
-        vx = (last.x - first.x) / dt;
-        vy = (last.y - first.y) / dt;
+        if (speed > 80) {
+          ball.velocityX = vx * 0.6;
+          ball.velocityY = vy * 0.6;
+          ball.isFlying = true;
+          ballEl.classList.add('flying');
+          ballEl.style.transform = 'none';
+          animateBallFlight();
+        } else {
+          resetBallPosition();
+          state._ballHideTimer = setTimeout(hideBall, 4000);
+        }
       }
-    }
-
-    const speed = Math.sqrt(vx * vx + vy * vy);
-
-    if (speed > 80) {
-      // Throw the ball!
-      ball.velocityX = vx * 0.6;
-      ball.velocityY = vy * 0.6;
-      ball.isFlying = true;
-      ballEl.classList.add('flying');
-      animateBallFlight();
-    } else {
-      // Not enough speed — return to origin and auto-hide
-      resetBallPosition();
-      state._ballHideTimer = setTimeout(hideBall, 4000);
-    }
+    });
   }
 
   function animateBallFlight() {
     const ballEl = els.ball;
-    const ballSize = 30;
+    ballEl.style.transform = 'none';
+    const ballSize = 36;
     const sceneRect = els.hamsterScene.getBoundingClientRect();
     
     const minLeft = -sceneRect.left;
@@ -946,15 +984,17 @@ const HamsterPet = (() => {
   function resetBallPosition() {
     const ballEl = els.ball;
     if (!ballEl) return;
-    
+
     ballEl.classList.remove('flying', 'dragging');
     ball.isFlying = false;
 
-    // Animate return
+    const sceneRect = els.hamsterScene.getBoundingClientRect();
+    const targetLeft = sceneRect.width - ballEl.offsetWidth - 10;
+    const targetTop = sceneRect.height - ballEl.offsetHeight - 30;
+
     ballEl.style.transition = 'left 0.4s ease, top 0.4s ease';
-    
-    ballEl.style.left = '230px';
-    ballEl.style.top = '210px';
+    ballEl.style.left = targetLeft + 'px';
+    ballEl.style.top = targetTop + 'px';
 
     setTimeout(() => {
       ballEl.style.transition = '';
@@ -962,6 +1002,7 @@ const HamsterPet = (() => {
       ballEl.style.top = '';
       ballEl.style.right = '10px';
       ballEl.style.bottom = '30px';
+      ballEl.style.transform = '';
       ballEl.classList.add('hint');
     }, 550);
   }
@@ -979,21 +1020,60 @@ const HamsterPet = (() => {
   //  DRAGGABLE FOODS SYSTEM
   // ========================================
 
-  let activeDraggedFood = null;
-  const foodDragState = {
-    isDragging: false,
-    grabX: 0,
-    grabY: 0
-  };
-
   function initFoods() {
     els.foods.forEach(el => {
-      el.addEventListener('pointerdown', onFoodPointerDown);
-    });
+      let grabX = 0, grabY = 0;
+      let active = false;
 
-    document.addEventListener('pointermove', onFoodPointerMove);
-    document.addEventListener('pointerup', onFoodPointerUp);
-    document.addEventListener('pointercancel', onFoodPointerUp);
+      makeDraggable(el, {
+        onDragStart(pointer) {
+          if (state.currentAction) { active = false; return; }
+          active = true;
+          clearTimeout(state._foodHideTimer);
+
+          const rect = el.getBoundingClientRect();
+          grabX = pointer.x - rect.left;
+          grabY = pointer.y - rect.top;
+
+          el.classList.add('dragging');
+          el.classList.remove('hint');
+          el.style.margin = '0';
+          el.style.left = rect.left + 'px';
+          el.style.top = rect.top + 'px';
+        },
+        onDrag(pointer) {
+          if (!active) return;
+          el.style.left = (pointer.x - grabX) + 'px';
+          el.style.top = (pointer.y - grabY) + 'px';
+
+          if (foodOverHamster(el) && !state.currentAction) {
+            els.hamster.classList.add('mouth-open');
+          } else {
+            els.hamster.classList.remove('mouth-open');
+          }
+
+          spawnFoodTrail(pointer.x, pointer.y, el.dataset.food);
+        },
+        onDragEnd(pointer, moved) {
+          if (!active) return;
+          active = false;
+          els.hamster.classList.remove('mouth-open');
+
+          if (moved && foodOverHamster(el) && !state.currentAction) {
+            if (state.stats.hunger >= 100) {
+              speak('Ya estoy llenito, chicas');
+              resetFoodPosition(el);
+              state._foodHideTimer = setTimeout(hideFoods, 3000);
+            } else {
+              feedFromDrag(el.dataset.food, el);
+            }
+          } else {
+            resetFoodPosition(el);
+            state._foodHideTimer = setTimeout(hideFoods, 4000);
+          }
+        }
+      });
+    });
   }
 
   // True when the food's center is over the hamster. Uses live bounding
@@ -1009,47 +1089,6 @@ const HamsterPet = (() => {
     return dist < (h.width / 2 + f.width / 2 + 5);
   }
 
-  function onFoodPointerDown(e) {
-    if (state.currentAction) return;
-    e.preventDefault();
-    activeDraggedFood = e.currentTarget;
-    activeDraggedFood.setPointerCapture(e.pointerId);
-
-    // Remember where inside the food the user grabbed, then lift it into
-    // fixed (viewport) space so it follows the pointer 1:1 on mouse + touch.
-    const rect = activeDraggedFood.getBoundingClientRect();
-    foodDragState.grabX = e.clientX - rect.left;
-    foodDragState.grabY = e.clientY - rect.top;
-    foodDragState.isDragging = true;
-
-    activeDraggedFood.classList.add('dragging');
-    activeDraggedFood.classList.remove('hint');
-
-    activeDraggedFood.style.margin = '0';
-    activeDraggedFood.style.left = rect.left + 'px';
-    activeDraggedFood.style.top = rect.top + 'px';
-
-    // Cancel the foods hiding countdown when user drags one
-    clearTimeout(state._foodHideTimer);
-  }
-
-  // Move the food and open the mouth when it reaches the hamster.
-  function onFoodPointerMove(e) {
-    if (!foodDragState.isDragging || !activeDraggedFood) return;
-    e.preventDefault();
-
-    activeDraggedFood.style.left = (e.clientX - foodDragState.grabX) + 'px';
-    activeDraggedFood.style.top = (e.clientY - foodDragState.grabY) + 'px';
-
-    if (foodOverHamster(activeDraggedFood) && !state.currentAction) {
-      els.hamster.classList.add('mouth-open');
-    } else {
-      els.hamster.classList.remove('mouth-open');
-    }
-
-    spawnFoodTrail(e.clientX, e.clientY, activeDraggedFood.dataset.food);
-  }
-
   function spawnFoodTrail(x, y, foodType) {
     const trail = document.createElement('span');
     trail.className = 'food-trail';
@@ -1063,31 +1102,6 @@ const HamsterPet = (() => {
     trail.style.top = (y - 4) + 'px';
     document.body.appendChild(trail);
     setTimeout(() => trail.remove(), 500);
-  }
-
-  function onFoodPointerUp(e) {
-    if (!foodDragState.isDragging || !activeDraggedFood) return;
-    foodDragState.isDragging = false;
-
-    const foodEl = activeDraggedFood;
-    activeDraggedFood = null;
-
-    els.hamster.classList.remove('mouth-open');
-
-    if (foodOverHamster(foodEl) && !state.currentAction) {
-      if (state.stats.hunger >= 100) {
-        speak('Ya estoy llenito, chicas');
-        resetFoodPosition(foodEl);
-        // Wait 3 seconds and hide all
-        state._foodHideTimer = setTimeout(hideFoods, 3000);
-      } else {
-        feedFromDrag(foodEl.dataset.food, foodEl);
-      }
-    } else {
-      resetFoodPosition(foodEl);
-      // Auto-hide in 4 seconds if dropped without feeding
-      state._foodHideTimer = setTimeout(hideFoods, 4000);
-    }
   }
 
   function feedFromDrag(foodType, foodEl) {
@@ -1136,13 +1150,38 @@ const HamsterPet = (() => {
   }
 
   function resetFoodPosition(foodEl) {
-    // Drop back into the tray's flex row by clearing the drag styles.
+    if (!foodEl.classList.contains('dragging')) {
+      foodEl.classList.add('hint');
+      return;
+    }
+
+    const startLeft = parseFloat(foodEl.style.left) || 0;
+    const startTop = parseFloat(foodEl.style.top) || 0;
+
     foodEl.classList.remove('dragging');
+    foodEl.style.transition = '';
     foodEl.style.left = '';
     foodEl.style.top = '';
     foodEl.style.margin = '';
-    foodEl.style.transition = '';
-    foodEl.classList.add('hint');
+    const natural = foodEl.getBoundingClientRect();
+
+    foodEl.classList.add('dragging');
+    foodEl.style.left = startLeft + 'px';
+    foodEl.style.top = startTop + 'px';
+    foodEl.style.margin = '0';
+    void foodEl.offsetWidth;
+    foodEl.style.transition = 'left 0.3s ease, top 0.3s ease';
+    foodEl.style.left = natural.left + 'px';
+    foodEl.style.top = natural.top + 'px';
+
+    setTimeout(() => {
+      foodEl.classList.remove('dragging');
+      foodEl.style.left = '';
+      foodEl.style.top = '';
+      foodEl.style.margin = '';
+      foodEl.style.transition = '';
+      foodEl.classList.add('hint');
+    }, 300);
   }
 
   function onFeedBtnClick() {
@@ -1151,7 +1190,7 @@ const HamsterPet = (() => {
     // Clear any previous hide timer
     clearTimeout(state._foodHideTimer);
 
-    const foodEls = document.querySelectorAll('.draggable-food');
+    const foodEls = els.foods;
     foodEls.forEach((foodEl, idx) => {
       foodEl.style.display = 'flex';
       foodEl.style.opacity = '0';
@@ -1180,7 +1219,7 @@ const HamsterPet = (() => {
   }
 
   function hideFoods() {
-    const foodEls = document.querySelectorAll('.draggable-food');
+    const foodEls = els.foods;
     foodEls.forEach(foodEl => {
       if (foodEl.style.display !== 'none') {
         foodEl.style.transition = 'opacity 0.5s ease';
@@ -1237,12 +1276,6 @@ const HamsterPet = (() => {
     // Update UI
     els.hatOptions.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    
-    // Small animation on hamster
-    els.hamsterHat.style.transform = 'translate(-50%, -10px)';
-    setTimeout(() => {
-      els.hamsterHat.style.transform = 'translateX(-50%)';
-    }, 150);
   }
 
   function applyHat(hatValue) {
@@ -1259,9 +1292,11 @@ const HamsterPet = (() => {
       if (state.hatTop && state.hatLeft) {
         els.hamsterHat.style.top = state.hatTop;
         els.hamsterHat.style.left = state.hatLeft;
+        els.hamsterHat.style.transform = 'none';
       } else {
         els.hamsterHat.style.top = '-90px';
         els.hamsterHat.style.left = '50%';
+        els.hamsterHat.style.transform = '';
       }
     } else {
       els.hamsterHat.textContent = '';
@@ -1275,52 +1310,35 @@ const HamsterPet = (() => {
   // pointer on the element itself (works for mouse + touch), and suppresses
   // the trailing click after a real drag.
   function makeAccessoryDraggable(el, onSave) {
-    let dragging = false;
-    let moved = false;
-    let startX = 0, startY = 0;
-    let lastX = 0, lastY = 0;
+    let startLeft = 0, startTop = 0;
 
-    el.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      el.setPointerCapture(e.pointerId);
-      dragging = true;
-      moved = false;
-      startX = lastX = e.clientX;
-      startY = lastY = e.clientY;
+    makeDraggable(el, {
+      threshold: 4,
+      onDragStart(pointer) {
+        const rect = el.getBoundingClientRect();
+        const parentRect = el.offsetParent.getBoundingClientRect();
+        const relLeft = rect.left - parentRect.left;
+        const relTop = rect.top - parentRect.top;
+
+        el.style.transform = 'none';
+        el.style.left = relLeft + 'px';
+        el.style.top = relTop + 'px';
+
+        startLeft = relLeft;
+        startTop = relTop;
+      },
+      onDrag(pointer) {
+        el.style.left = (startLeft + (pointer.x - pointer.startX)) + 'px';
+        el.style.top = (startTop + (pointer.y - pointer.startY)) + 'px';
+      },
+      onDragEnd(pointer, moved) {
+        if (moved) {
+          accessoryDragOccurred = true;
+          setTimeout(() => { accessoryDragOccurred = false; }, 0);
+          onSave(el.style.top, el.style.left);
+        }
+      }
     });
-
-    document.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      e.preventDefault();
-      if (!moved && Math.hypot(e.clientX - startX, e.clientY - startY) > 4) {
-        moved = true;
-      }
-      if (moved) {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        const currentTop = parseFloat(getComputedStyle(el).top) || 0;
-        const currentLeft = parseFloat(getComputedStyle(el).left) || 0;
-        el.style.left = (currentLeft + dx) + 'px';
-        el.style.top = (currentTop + dy) + 'px';
-      }
-      lastX = e.clientX;
-      lastY = e.clientY;
-    });
-
-    function endDrag(e) {
-      if (!dragging) return;
-      dragging = false;
-      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
-      if (moved) {
-        accessoryDragOccurred = true;
-        setTimeout(() => { accessoryDragOccurred = false; }, 0);
-        onSave(el.style.top, el.style.left);
-      }
-    }
-
-    document.addEventListener('pointerup', endDrag);
-    document.addEventListener('pointercancel', endDrag);
   }
 
   function initHatDrag() {
@@ -1363,11 +1381,6 @@ const HamsterPet = (() => {
     
     els.glassesOptions.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    
-    els.hamsterGlasses.style.transform = 'translate(-50%, -10px)';
-    setTimeout(() => {
-      els.hamsterGlasses.style.transform = 'translateX(-50%)';
-    }, 150);
   }
 
   function applyGlasses(glassesValue) {
@@ -1384,9 +1397,11 @@ const HamsterPet = (() => {
       if (state.glassesTop && state.glassesLeft) {
         els.hamsterGlasses.style.top = state.glassesTop;
         els.hamsterGlasses.style.left = state.glassesLeft;
+        els.hamsterGlasses.style.transform = 'none';
       } else {
-        els.hamsterGlasses.style.top = '-50px';
+        els.hamsterGlasses.style.top = '15px';
         els.hamsterGlasses.style.left = '50%';
+        els.hamsterGlasses.style.transform = '';
       }
     } else {
       els.hamsterGlasses.textContent = '';
@@ -1404,6 +1419,8 @@ const HamsterPet = (() => {
   }
 
   function init() {
+    if (initDone) return;
+    initDone = true;
     cacheDom();
     loadState();
 
@@ -1460,16 +1477,15 @@ const HamsterPet = (() => {
       } else if (energy < 30) {
         say('tired');
       } else {
-        showBubble(`¡Hola! ¡Soy ${state.name}! 🐹✨`);
-        speak(`¡Hola! ¡Soy ${state.name}!`);
+        say('idle');
       }
     }, 800);
 
     // Game loop: every 3 seconds
-    setInterval(tick, 3000);
+    tickInterval = setInterval(tick, 3000);
 
     // Save periodically
-    setInterval(saveState, 30000);
+    saveInterval = setInterval(saveState, 30000);
   }
 
   // Start when DOM ready
