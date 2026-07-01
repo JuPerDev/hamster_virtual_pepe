@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250" viewBox="200 50 400 250">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>.line{stroke:#35110b;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;}.lineThin{stroke:#35110b;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}</style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <rect x="280" y="150" width="40" height="50" rx="8" fill="#d4a060" class="line"/>
+    <rect x="340" y="150" width="40" height="50" rx="8" fill="#c4954a" class="line"/>
+    <rect x="400" y="150" width="40" height="50" rx="8" fill="#d4a060" class="line"/>
+    <rect x="460" y="150" width="40" height="50" rx="8" fill="#c4954a" class="line"/>
+    <line x1="290" y1="165" x2="310" y2="165" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="290" y1="180" x2="310" y2="180" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="350" y1="165" x2="370" y2="165" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="350" y1="180" x2="370" y2="180" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="410" y1="165" x2="430" y2="165" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="410" y1="180" x2="430" y2="180" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="470" y1="165" x2="490" y2="165" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+    <line x1="470" y1="180" x2="490" y2="180" class="lineThin" stroke="#a67c3a" opacity="0.5"/>
+  </g>
+</svg>

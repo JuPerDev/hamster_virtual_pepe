@@ -24,6 +24,19 @@ const HamsterPet = (() => {
     isWalking: false,
     // Wardrobe
     hat: '',
+    achievements: {
+      fed: 0,
+      played: 0,
+      slept: 0,
+      cleaned: 0,
+      petted: 0,
+      wheelRuns: 0,
+      dances: 0,
+      brushed: 0,
+      hatsCollected: 0,
+      unlocked: [],
+    },
+    habitat: { wall: '', floor: '', deco: '' },
   };
 
   // --- Load saved state ---
@@ -49,6 +62,11 @@ const HamsterPet = (() => {
           const oldTop = parseFloat(state.glassesTop);
           if (!isNaN(oldTop)) state.glassesTop = (oldTop + 65) + 'px';
         }
+
+        if (parsed.achievements) {
+          Object.assign(state.achievements, parsed.achievements);
+        }
+        if (parsed.habitat) Object.assign(state.habitat, parsed.habitat);
 
         // Decay stats based on time away
         const minutesAway = (Date.now() - (parsed.lastSave || Date.now())) / 60000;
@@ -78,6 +96,8 @@ const HamsterPet = (() => {
         glasses: state.glasses,
         glassesTop: state.glassesTop,
         glassesLeft: state.glassesLeft,
+        achievements: state.achievements,
+        habitat: state.habitat,
         cfgVer: 2,
         lastSave: Date.now(),
       }));
@@ -229,6 +249,18 @@ const HamsterPet = (() => {
       glassesModal: document.getElementById('glasses-modal'),
       btnGlassesClose: document.getElementById('btn-glasses-close'),
       glassesOptions: document.querySelectorAll('.glasses-option'),
+      wheelBtn: document.getElementById('btn-wheel'),
+      danceBtn: document.getElementById('btn-dance'),
+      brushBtn: document.getElementById('btn-brush'),
+      yarnBtn: document.getElementById('btn-yarn'),
+      habitatBtn: document.getElementById('btn-habitat'),
+      habitatModal: document.getElementById('habitat-modal'),
+      btnHabitatClose: document.getElementById('btn-habitat-close'),
+      habitatOptions: document.querySelectorAll('.habitat-option'),
+      habitatWall: document.getElementById('habitat-wall'),
+      habitatFloor: document.getElementById('habitat-floor'),
+      habitatDeco: document.getElementById('habitat-deco'),
+      badgeWall: document.querySelector('.badge-wall'),
     };
   }
 
@@ -237,6 +269,37 @@ const HamsterPet = (() => {
   let tickInterval = null;
   let saveInterval = null;
   let initDone = false;
+  const HAMSTER_ACTION_CLASSES = [
+    'idle',
+    'walking',
+    'bounce',
+    'happy',
+    'eating',
+    'sleeping',
+    'catching',
+    'running',
+    'dancing',
+    'brushing',
+    'curious',
+    'sniffing',
+    'stretching',
+    'tracking-ball',
+  ];
+  const HAMSTER_MOOD_CLASSES = [
+    'mood-happy',
+    'mood-normal',
+    'mood-sad',
+    'mood-hungry',
+    'mood-tired',
+    'mood-dirty',
+    'mood-bad',
+  ];
+
+  function setSpeakingVisual(active) {
+    if (els.hamster) {
+      els.hamster.classList.toggle('speaking', active);
+    }
+  }
 
   function playAudio(src) {
     if (!state.isSoundOn) return;
@@ -244,16 +307,25 @@ const HamsterPet = (() => {
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
+      setSpeakingVisual(false);
     }
 
     currentAudio = new Audio(src);
     state.isSpeaking = true;
-    currentAudio.onended = () => { state.isSpeaking = false; };
-    currentAudio.onerror = () => { state.isSpeaking = false; };
+    setSpeakingVisual(true);
+    currentAudio.onended = () => {
+      state.isSpeaking = false;
+      setSpeakingVisual(false);
+    };
+    currentAudio.onerror = () => {
+      state.isSpeaking = false;
+      setSpeakingVisual(false);
+    };
     
     currentAudio.play().catch(err => {
       console.warn('Failed to play audio:', src, err);
       state.isSpeaking = false;
+      setSpeakingVisual(false);
     });
   }
 
@@ -301,12 +373,16 @@ const HamsterPet = (() => {
   }
 
   // --- Hamster Animation ---
+  function clearHamsterActionClasses() {
+    els.hamster.classList.remove(...HAMSTER_ACTION_CLASSES);
+  }
+
   function animateHamster(className, duration = 800) {
     if (className !== 'idle' && className !== 'walking') {
       stopWalking();
     }
 
-    els.hamster.classList.remove('idle', 'bounce', 'happy', 'eating', 'sleeping', 'catching');
+    clearHamsterActionClasses();
     void els.hamster.offsetWidth; // Force reflow
     els.hamster.classList.add(className);
 
@@ -316,6 +392,18 @@ const HamsterPet = (() => {
         updateIdleState();
       }, duration);
     }
+  }
+
+  function triggerIdleGesture() {
+    if (state.currentAction || state.isSpeaking || state.stats.energy < 15) return;
+
+    const gestures = [
+      { className: 'curious', duration: 1200 },
+      { className: 'sniffing', duration: 1100 },
+      { className: 'stretching', duration: 1350 },
+    ];
+    const gesture = gestures[Math.floor(Math.random() * gestures.length)];
+    animateHamster(gesture.className, gesture.duration);
   }
 
   // --- Update Stats UI ---
@@ -344,37 +432,47 @@ const HamsterPet = (() => {
     const { hunger, happiness, energy, cleanliness } = state.stats;
     const avg = (hunger + happiness + energy + cleanliness) / 4;
 
-    let mood, emoji;
+    let mood, emoji, moodClass;
 
     if (state.currentAction === 'sleeping') {
       mood = 'Durmiendo';
       emoji = '😴';
+      moodClass = 'mood-tired';
     } else if (hunger < 20) {
       mood = 'Hambriento';
       emoji = '😫';
+      moodClass = 'mood-hungry';
     } else if (energy < 20) {
       mood = 'Cansado';
       emoji = '😪';
+      moodClass = 'mood-tired';
     } else if (cleanliness < 20) {
       mood = 'Sucio';
       emoji = '🫣';
+      moodClass = 'mood-dirty';
     } else if (avg > 75) {
       mood = 'Feliz';
       emoji = '😊';
+      moodClass = 'mood-happy';
     } else if (avg > 50) {
       mood = 'Normal';
       emoji = '🙂';
+      moodClass = 'mood-normal';
     } else if (avg > 25) {
       mood = 'Triste';
       emoji = '😟';
+      moodClass = 'mood-sad';
     } else {
       mood = 'Mal';
       emoji = '😢';
+      moodClass = 'mood-bad';
     }
 
     state.mood = mood;
     els.moodEmoji.textContent = emoji;
     els.moodText.textContent = mood;
+    els.hamster.classList.remove(...HAMSTER_MOOD_CLASSES);
+    els.hamster.classList.add(moodClass);
   }
 
   function updateAge() {
@@ -445,9 +543,63 @@ const HamsterPet = (() => {
     }
   }
 
+  let audioCtx = null;
+  let chewTimer = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        return null;
+      }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playChew() {
+    const ctx = getAudioCtx();
+    if (!ctx || !state.isSoundOn) return;
+    const duration = 0.06 + Math.random() * 0.04;
+    const sr = ctx.sampleRate;
+    const buf = ctx.createBuffer(1, Math.floor(sr * duration), sr);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 600 + Math.random() * 600;
+    filter.Q.value = 1.5;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  }
+
+  function startChewing() {
+    stopChewing();
+    function next() {
+      if (state.currentAction !== 'eating') return;
+      playChew();
+      chewTimer = setTimeout(next, 120 + Math.random() * 180);
+    }
+    next();
+  }
+
+  function stopChewing() {
+    if (chewTimer) { clearTimeout(chewTimer); chewTimer = null; }
+  }
+
   // --- Actions ---
   function disableButtons(ms) {
-    const btns = [els.feedBtn, els.playBtn, els.sleepBtn, els.cleanBtn, els.petBtn, els.talkBtn];
+    const btns = [els.feedBtn, els.playBtn, els.sleepBtn, els.cleanBtn, els.petBtn, els.talkBtn, els.wheelBtn, els.danceBtn, els.brushBtn];
     btns.forEach(b => b.disabled = true);
     setTimeout(() => btns.forEach(b => b.disabled = false), ms);
   }
@@ -458,9 +610,11 @@ const HamsterPet = (() => {
       return;
     }
 
+    state.achievements.fed++;
     state.currentAction = 'eating';
     animateHamster('eating', 2500);
     say('eating');
+    startChewing();
     spawnParticles('🌻', 6);
     disableButtons(2500);
 
@@ -470,12 +624,14 @@ const HamsterPet = (() => {
 
     setTimeout(() => {
       state.currentAction = null;
+      stopChewing();
       updateIdleState();
     }, 2500);
 
     updateStatsUI();
     updateMood();
     saveState();
+    checkAchievements();
   }
 
   function play() {
@@ -484,6 +640,7 @@ const HamsterPet = (() => {
       return;
     }
 
+    state.achievements.played++;
     stopWalking();
 
     // Show the ball!
@@ -510,6 +667,7 @@ const HamsterPet = (() => {
 
     say('playing');
     animateHamster('happy', 1500);
+    checkAchievements();
   }
 
   let restInterval = null;
@@ -544,7 +702,7 @@ const HamsterPet = (() => {
     if (state.currentAction) return;
 
     state.currentAction = 'sleeping';
-    els.hamster.classList.remove('idle', 'bounce', 'happy', 'eating');
+    clearHamsterActionClasses();
     els.hamster.classList.add('sleeping');
     els.zzzContainer.style.display = 'block';
     say('sleeping');
@@ -557,6 +715,8 @@ const HamsterPet = (() => {
       saveState();
 
       if (state.stats.energy >= 100) {
+        state.achievements.slept++;
+        checkAchievements();
         wakeUp();
       }
     }, 1500);
@@ -568,6 +728,7 @@ const HamsterPet = (() => {
       return;
     }
 
+    state.achievements.cleaned++;
     state.currentAction = 'cleaning';
     animateHamster('bounce', 2000);
     say('clean');
@@ -585,9 +746,11 @@ const HamsterPet = (() => {
     updateStatsUI();
     updateMood();
     saveState();
+    checkAchievements();
   }
 
   function pet() {
+    state.achievements.petted++;
     state.currentAction = 'petted';
     animateHamster('happy', 2000);
     say('petted');
@@ -604,6 +767,147 @@ const HamsterPet = (() => {
     updateStatsUI();
     updateMood();
     saveState();
+    checkAchievements();
+  }
+
+  function wheel() {
+    if (state.stats.energy < 15) {
+      speak('Chicas, estoy muy cansadito');
+      return;
+    }
+    state.currentAction = 'running';
+    clearHamsterActionClasses();
+    els.hamster.classList.add('running');
+    say('playing');
+    startChewing();
+    spawnParticles('💨', 5);
+    disableButtons(3000);
+
+    const runInterval = setInterval(() => {
+      state.stats.energy = Math.max(0, state.stats.energy - 4);
+      state.stats.happiness = Math.min(100, state.stats.happiness + 3);
+      state.stats.cleanliness = Math.max(0, state.stats.cleanliness - 1);
+      state.stats.hunger = Math.max(0, state.stats.hunger - 2);
+      updateStatsUI();
+      updateMood();
+      saveState();
+    }, 400);
+
+    setTimeout(() => {
+      clearInterval(runInterval);
+      stopChewing();
+      state.currentAction = null;
+      els.hamster.classList.remove('running');
+      animateHamster('bounce', 600);
+      updateIdleState();
+      state.achievements.wheelRuns++;
+      checkAchievements();
+    }, 3000);
+  }
+
+  function dance() {
+    state.currentAction = 'dancing';
+    clearHamsterActionClasses();
+    els.hamster.classList.add('dancing');
+    say('happy');
+    spawnParticles('🎵', 8);
+    spawnParticles('🎶', 4);
+    disableButtons(2500);
+
+    state.stats.happiness = Math.min(100, state.stats.happiness + 18);
+    state.stats.energy = Math.max(0, state.stats.energy - 8);
+
+    setTimeout(() => {
+      state.currentAction = null;
+      els.hamster.classList.remove('dancing');
+      updateIdleState();
+      state.achievements.dances++;
+      checkAchievements();
+    }, 2500);
+
+    updateStatsUI();
+    updateMood();
+    saveState();
+  }
+
+  function brush() {
+    if (state.stats.cleanliness >= 100) {
+      speak('Chicas, ya estoy limpiecito');
+      return;
+    }
+    state.currentAction = 'brushing';
+    clearHamsterActionClasses();
+    els.hamster.classList.add('brushing');
+    say('clean');
+    spawnParticles('✨', 6);
+    spawnParticles('💅', 3);
+    disableButtons(2000);
+
+    state.stats.cleanliness = Math.min(100, state.stats.cleanliness + 20);
+    state.stats.happiness = Math.min(100, state.stats.happiness + 8);
+
+    setTimeout(() => {
+      state.currentAction = null;
+      els.hamster.classList.remove('brushing');
+      updateIdleState();
+      state.achievements.brushed++;
+      checkAchievements();
+    }, 2000);
+
+    updateStatsUI();
+    updateMood();
+    saveState();
+  }
+
+  function playYarn() {
+    if (state.stats.energy < 10) {
+      speak('Chicas, estoy muy cansadito');
+      return;
+    }
+    stopWalking();
+    const yarnEl = document.getElementById('yarn-toy');
+    if (!yarnEl) return;
+    yarnEl.style.display = 'block';
+    yarnEl.style.opacity = '0';
+    yarnEl.classList.remove('hint');
+    yarnEl.style.transition = 'opacity 0.4s ease';
+    void yarnEl.offsetWidth;
+    yarnEl.style.opacity = '1';
+    yarnEl.classList.add('hint');
+
+    state.currentAction = 'playing-yarn';
+    say('playing');
+
+    let yarnX = 0, yarnY = 0;
+    const yarnInterval = setInterval(() => {
+      yarnX += (Math.random() - 0.5) * 40;
+      yarnY += (Math.random() - 0.5) * 20;
+      yarnX = Math.max(-80, Math.min(80, yarnX));
+      yarnY = Math.max(-40, Math.min(40, yarnY));
+      yarnEl.style.transform = `translate(${yarnX}px, ${yarnY}px) rotate(${yarnX * 3}deg)`;
+      state.positionX = yarnX * 0.6;
+      updateHamsterTransform();
+      state.stats.happiness = Math.min(100, state.stats.happiness + 1);
+      state.stats.energy = Math.max(0, state.stats.energy - 1);
+      updateStatsUI();
+    }, 300);
+
+    setTimeout(() => {
+      clearInterval(yarnInterval);
+      state.currentAction = null;
+      stopWalking();
+      yarnEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      yarnEl.style.opacity = '0';
+      setTimeout(() => { yarnEl.style.display = 'none'; yarnEl.style.transform = ''; }, 500);
+      spawnParticles('🧶', 4);
+      spawnParticles('💕', 3);
+      state.stats.happiness = Math.min(100, state.stats.happiness + 10);
+      updateStatsUI();
+      updateMood();
+      saveState();
+      state.achievements.played++;
+      checkAchievements();
+    }, 4000);
   }
 
   function talk() {
@@ -628,7 +932,8 @@ const HamsterPet = (() => {
 
     state.stats.hunger = Math.max(0, state.stats.hunger - 0.15);
     state.stats.happiness = Math.max(0, state.stats.happiness - 0.08);
-    state.stats.energy = Math.max(0, state.stats.energy - 0.05);
+    const energyDecay = getTimePeriod() === 'night' ? 0.12 : 0.05;
+    state.stats.energy = Math.max(0, state.stats.energy - energyDecay);
     state.stats.cleanliness = Math.max(0, state.stats.cleanliness - 0.04);
 
     updateStatsUI();
@@ -641,12 +946,18 @@ const HamsterPet = (() => {
       const { hunger, happiness, energy } = state.stats;
       if (hunger < 20) say('hungry');
       else if (energy < 15) say('tired');
+      else if (getTimePeriod() === 'night' && Math.random() < 0.5) say('tired');
       else if (Math.random() < 0.3) say('idle');
     }
 
-    // Random horizontal walk when idle, not speaking, and not thinking
-    if (Math.random() < 0.08 && !state.currentAction && !state.isSpeaking && state.stats.energy >= 15) {
-      startWalking();
+    // Random little life: curious gestures or a short horizontal shuffle.
+    if (!state.currentAction && !state.isSpeaking && state.stats.energy >= 15) {
+      const idleRoll = Math.random();
+      if (idleRoll < 0.11) {
+        triggerIdleGesture();
+      } else if (idleRoll < 0.19) {
+        startWalking();
+      }
     }
 
     saveState();
@@ -660,6 +971,7 @@ const HamsterPet = (() => {
   function onHamsterClick() {
     if (accessoryDragOccurred) return;
     if (state.currentAction) return;
+    state.achievements.petted++;
     animateHamster('bounce', 600);
     spawnParticles('💖', 3);
     say('petted');
@@ -668,6 +980,7 @@ const HamsterPet = (() => {
     updateStatsUI();
     updateMood();
     saveState();
+    checkAchievements();
   }
 
   // --- Volume Toggle ---
@@ -676,6 +989,8 @@ const HamsterPet = (() => {
     els.volumeToggle.textContent = state.isSoundOn ? '🔊' : '🔇';
     if (!state.isSoundOn && currentAudio) {
       currentAudio.pause();
+      state.isSpeaking = false;
+      setSpeakingVisual(false);
     }
     saveState();
   }
@@ -907,6 +1222,14 @@ const HamsterPet = (() => {
       ballEl.style.left = bx + 'px';
       ballEl.style.top = by + 'px';
 
+      const hamsterRect = els.hamster.getBoundingClientRect();
+      const ballCX = sceneRect.left + bx + ballSize / 2;
+      const ballCY = sceneRect.top + by + ballSize / 2;
+      const hamsterCX = hamsterRect.left + hamsterRect.width / 2;
+      const hamsterCY = hamsterRect.top + hamsterRect.height / 2;
+      const nearHamster = Math.hypot(ballCX - hamsterCX, ballCY - hamsterCY) < hamsterRect.width / 2 + 120;
+      els.hamster.classList.toggle('tracking-ball', nearHamster);
+
       if (checkHamsterCollision(bx, by, ballSize)) {
         onBallCatch();
         return;
@@ -945,6 +1268,7 @@ const HamsterPet = (() => {
     cancelAnimationFrame(ball.animFrame);
     ball.isFlying = false;
     els.ball.classList.remove('flying');
+    els.hamster.classList.remove('tracking-ball');
 
     // Hamster reacts!
     animateHamster('catching', 700);
@@ -969,6 +1293,7 @@ const HamsterPet = (() => {
     cancelAnimationFrame(ball.animFrame);
     ball.isFlying = false;
     els.ball.classList.remove('flying');
+    els.hamster.classList.remove('tracking-ball');
 
     // Hamster looks sad briefly
     say('ballMiss');
@@ -986,6 +1311,7 @@ const HamsterPet = (() => {
     if (!ballEl) return;
 
     ballEl.classList.remove('flying', 'dragging');
+    els.hamster.classList.remove('tracking-ball');
     ball.isFlying = false;
 
     const sceneRect = els.hamsterScene.getBoundingClientRect();
@@ -1020,15 +1346,63 @@ const HamsterPet = (() => {
   //  DRAGGABLE FOODS SYSTEM
   // ========================================
 
+  const FOOD_STATS = {
+    seed:   { emoji: '🌻', hunger: 25, happiness: 5,  cleanliness: 3 },
+    carrot: { emoji: '🥕', hunger: 20, happiness: 8,  cleanliness: 1 },
+    cheese: { emoji: '🧀', hunger: 30, happiness: 12, cleanliness: 6 },
+  };
+
   function initFoods() {
     els.foods.forEach(el => {
       let grabX = 0, grabY = 0;
       let active = false;
+      let eating = false;
+      let eatProgress = 0;
+      let eatInterval = null;
+      const TICK_MS = 250;
+      const TICKS_TOTAL = 10;
+      const perTick = 1 / TICKS_TOTAL;
+
+      function stopEating() {
+        if (eatInterval) { clearInterval(eatInterval); eatInterval = null; }
+        if (eating) {
+          eating = false;
+          stopChewing();
+          els.hamster.classList.remove('eating', 'mouth-open');
+          state.currentAction = null;
+          updateIdleState();
+        }
+      }
+
+      function finishEating() {
+        if (eatInterval) { clearInterval(eatInterval); eatInterval = null; }
+        eating = false;
+        stopChewing();
+        els.hamster.classList.remove('eating', 'mouth-open');
+        state.currentAction = null;
+        const food = FOOD_STATS[el.dataset.food] || FOOD_STATS.seed;
+        say('eating');
+        spawnParticles(food.emoji, 6);
+        el.style.display = 'none';
+        setTimeout(() => {
+          el.style.display = 'flex';
+          el.style.transition = '';
+          el.style.transform = '';
+          el.style.opacity = '';
+          resetFoodPosition(el);
+          state._foodHideTimer = setTimeout(hideFoods, 3000);
+        }, 3000);
+        updateIdleState();
+        saveState();
+      }
 
       makeDraggable(el, {
         onDragStart(pointer) {
           if (state.currentAction) { active = false; return; }
           active = true;
+          eating = false;
+          eatProgress = 0;
+          if (eatInterval) { clearInterval(eatInterval); eatInterval = null; }
           clearTimeout(state._foodHideTimer);
 
           const rect = el.getBoundingClientRect();
@@ -1040,15 +1414,47 @@ const HamsterPet = (() => {
           el.style.margin = '0';
           el.style.left = rect.left + 'px';
           el.style.top = rect.top + 'px';
+          el.style.transition = '';
+          el.style.transform = '';
+          el.style.opacity = '';
         },
         onDrag(pointer) {
           if (!active) return;
           el.style.left = (pointer.x - grabX) + 'px';
           el.style.top = (pointer.y - grabY) + 'px';
 
-          if (foodOverHamster(el) && !state.currentAction) {
+          const over = foodOverHamster(el);
+          const canEat = over && (!state.currentAction || state.currentAction === 'eating') && state.stats.hunger < 100;
+
+          if (canEat && !eating) {
+            eating = true;
+            eatProgress = 0;
+            state.currentAction = 'eating';
+            clearHamsterActionClasses();
+            els.hamster.classList.add('eating', 'mouth-open');
+            startChewing();
+            const food = FOOD_STATS[el.dataset.food] || FOOD_STATS.seed;
+            eatInterval = setInterval(() => {
+              eatProgress += perTick;
+              const scale = Math.max(0.05, 1 - eatProgress);
+              el.style.transform = 'scale(' + scale + ')';
+              el.style.opacity = String(Math.max(0, 1 - eatProgress));
+              state.stats.hunger = Math.min(100, state.stats.hunger + food.hunger * perTick);
+              state.stats.happiness = Math.min(100, state.stats.happiness + food.happiness * perTick);
+              state.stats.cleanliness = Math.max(0, state.stats.cleanliness - food.cleanliness * perTick);
+              updateStatsUI();
+              updateMood();
+              if (eatProgress >= 1) {
+                finishEating();
+              }
+            }, TICK_MS);
+          } else if (!canEat && eating) {
+            stopEating();
+          }
+
+          if (over && !eating) {
             els.hamster.classList.add('mouth-open');
-          } else {
+          } else if (!over) {
             els.hamster.classList.remove('mouth-open');
           }
 
@@ -1057,20 +1463,22 @@ const HamsterPet = (() => {
         onDragEnd(pointer, moved) {
           if (!active) return;
           active = false;
-          els.hamster.classList.remove('mouth-open');
+          const wasEating = eating;
+          stopEating();
 
-          if (moved && foodOverHamster(el) && !state.currentAction) {
-            if (state.stats.hunger >= 100) {
-              speak('Ya estoy llenito, chicas');
-              resetFoodPosition(el);
-              state._foodHideTimer = setTimeout(hideFoods, 3000);
-            } else {
-              feedFromDrag(el.dataset.food, el);
-            }
-          } else {
-            resetFoodPosition(el);
-            state._foodHideTimer = setTimeout(hideFoods, 4000);
+          if (wasEating && eatProgress >= 1) {
+            return;
           }
+
+          if (moved && foodOverHamster(el) && state.stats.hunger >= 100) {
+            speak('Ya estoy llenito, chicas');
+          }
+
+          el.style.transition = '';
+          el.style.transform = '';
+          el.style.opacity = '';
+          resetFoodPosition(el);
+          state._foodHideTimer = setTimeout(hideFoods, 4000);
         }
       });
     });
@@ -1102,51 +1510,6 @@ const HamsterPet = (() => {
     trail.style.top = (y - 4) + 'px';
     document.body.appendChild(trail);
     setTimeout(() => trail.remove(), 500);
-  }
-
-  function feedFromDrag(foodType, foodEl) {
-    foodEl.style.display = 'none';
-
-    state.currentAction = 'eating';
-    animateHamster('eating', 2500);
-    
-    let emoji = '🌻';
-    let hungerGain = 25;
-    let happinessGain = 5;
-    let cleanlinessLoss = 3;
-
-    if (foodType === 'carrot') {
-      emoji = '🥕';
-      hungerGain = 20;
-      happinessGain = 8;
-      cleanlinessLoss = 1;
-    } else if (foodType === 'cheese') {
-      emoji = '🧀';
-      hungerGain = 30;
-      happinessGain = 12;
-      cleanlinessLoss = 6;
-    }
-
-    say('eating');
-    spawnParticles(emoji, 6);
-    disableButtons(2500);
-
-    state.stats.hunger = Math.min(100, state.stats.hunger + hungerGain);
-    state.stats.happiness = Math.min(100, state.stats.happiness + happinessGain);
-    state.stats.cleanliness = Math.max(0, state.stats.cleanliness - cleanlinessLoss);
-
-    setTimeout(() => {
-      state.currentAction = null;
-      updateIdleState();
-      foodEl.style.display = 'flex';
-      resetFoodPosition(foodEl);
-      // Wait 3 seconds, then hide all foods
-      state._foodHideTimer = setTimeout(hideFoods, 3000);
-    }, 2500);
-
-    updateStatsUI();
-    updateMood();
-    saveState();
   }
 
   function resetFoodPosition(foodEl) {
@@ -1273,6 +1636,11 @@ const HamsterPet = (() => {
     saveState();
     applyHat(selectedHat);
     
+    if (selectedHat) {
+      state.achievements.hatsCollected++;
+      checkAchievements();
+    }
+
     // Update UI
     els.hatOptions.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
@@ -1418,6 +1786,103 @@ const HamsterPet = (() => {
     });
   }
 
+  function getTimePeriod() {
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 18) return 'day';
+    if (hour >= 18 && hour < 20) return 'sunset';
+    if (hour >= 20 || hour < 5) return 'night';
+    return 'dawn';
+  }
+
+  function applyTimePeriod() {
+    const period = getTimePeriod();
+    document.body.classList.remove('time-day', 'time-sunset', 'time-night', 'time-dawn');
+    document.body.classList.add('time-' + period);
+  }
+
+  function initDayNightCycle() {
+    applyTimePeriod();
+    setInterval(applyTimePeriod, 60000);
+  }
+
+  const ACHIEVEMENT_DEFS = [
+    { id: 'firstMeal',    badge: 'badge_primeracomida', name: 'Primera comida',    check: () => state.achievements.fed >= 1 },
+    { id: 'player',       badge: 'badge_jugador',       name: 'Jugador',           check: () => state.achievements.played >= 5 },
+    { id: 'sleeper',      badge: 'badge_dormilon',      name: 'Dormilón',          check: () => state.achievements.slept >= 5 },
+    { id: 'clean',        badge: 'badge_limpieza',      name: 'Limpieza',          check: () => state.achievements.cleaned >= 5 },
+    { id: 'loving',       badge: 'badge_cariñoso',      name: 'Cariñoso',          check: () => state.achievements.petted >= 10 },
+    { id: 'stylist',      badge: 'badge_estilista',     name: 'Estilista',         check: () => state.achievements.hatsCollected >= 3 },
+    { id: 'athlete',      badge: 'badge_atleta',        name: 'Atleta',            check: () => state.achievements.wheelRuns >= 5 },
+    { id: 'dancer',       badge: 'badge_bailarin',      name: 'Bailarín',          check: () => state.achievements.dances >= 3 },
+    { id: 'collector',    badge: 'badge_coleccionista', name: 'Coleccionista',     check: () => state.achievements.unlocked.length >= 5 },
+    { id: 'master',       badge: 'badge_maestro',       name: 'Maestro hámster',   check: () => state.achievements.unlocked.length >= 8 },
+  ];
+
+  function checkAchievements() {
+    ACHIEVEMENT_DEFS.forEach(def => {
+      if (!state.achievements.unlocked.includes(def.id) && def.check()) {
+        state.achievements.unlocked.push(def.id);
+        showBadgeUnlock(def);
+        renderBadges();
+        saveState();
+      }
+    });
+  }
+
+  function showBadgeUnlock(def) {
+    const notif = document.createElement('div');
+    notif.className = 'badge-notif';
+    notif.innerHTML = `<img src="assets/hamster_ilu/logros/${def.badge}.svg" alt="${def.name}"><span>¡Logro: ${def.name}!</span>`;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 4000);
+  }
+
+  function renderBadges() {
+    const container = document.querySelector('.badge-wall');
+    if (!container) return;
+    container.innerHTML = '';
+    state.achievements.unlocked.forEach(id => {
+      const def = ACHIEVEMENT_DEFS.find(d => d.id === id);
+      if (!def) return;
+      const img = document.createElement('img');
+      img.src = `assets/hamster_ilu/logros/${def.badge}.svg`;
+      img.alt = def.name;
+      img.className = 'badge-icon';
+      img.title = def.name;
+      container.appendChild(img);
+    });
+  }
+
+  function openHabitat() {
+    els.habitatOptions.forEach(btn => {
+      const type = btn.dataset.habitatType;
+      const value = btn.dataset.habitatValue;
+      if (state.habitat[type] === value) btn.classList.add('selected');
+      else btn.classList.remove('selected');
+    });
+    els.habitatModal.classList.add('visible');
+  }
+  function closeHabitat() {
+    els.habitatModal.classList.remove('visible');
+  }
+  function onHabitatSelect(e) {
+    const btn = e.currentTarget;
+    const type = btn.dataset.habitatType;
+    const value = btn.dataset.habitatValue;
+    state.habitat[type] = value;
+    saveState();
+    applyHabitat();
+    els.habitatOptions.forEach(b => {
+      if (b.dataset.habitatType === type) b.classList.remove('selected');
+    });
+    btn.classList.add('selected');
+  }
+  function applyHabitat() {
+    els.habitatWall.style.backgroundImage = state.habitat.wall ? `url('${state.habitat.wall}')` : 'none';
+    els.habitatFloor.style.backgroundImage = state.habitat.floor ? `url('${state.habitat.floor}')` : 'none';
+    els.habitatDeco.style.backgroundImage = state.habitat.deco ? `url('${state.habitat.deco}')` : 'none';
+  }
+
   function init() {
     if (initDone) return;
     initDone = true;
@@ -1445,6 +1910,13 @@ const HamsterPet = (() => {
     els.wardrobeCloseBtn.addEventListener('click', closeWardrobe);
     els.btnGlasses.addEventListener('click', handleActionClick(openGlasses));
     els.btnGlassesClose.addEventListener('click', closeGlasses);
+    els.wheelBtn.addEventListener('click', handleActionClick(wheel));
+    els.danceBtn.addEventListener('click', handleActionClick(dance));
+    els.brushBtn.addEventListener('click', handleActionClick(brush));
+    els.yarnBtn.addEventListener('click', handleActionClick(playYarn));
+    els.habitatBtn.addEventListener('click', handleActionClick(openHabitat));
+    els.btnHabitatClose.addEventListener('click', closeHabitat);
+    els.habitatOptions.forEach(btn => btn.addEventListener('click', onHabitatSelect));
     els.hamster.addEventListener('click', handleActionClick(onHamsterClick));
     els.volumeToggle.addEventListener('click', toggleSound);
     els.nameInput.addEventListener('change', onNameChange);
@@ -1460,6 +1932,7 @@ const HamsterPet = (() => {
     // Apply saved accessories
     applyHat(state.hat);
     applyGlasses(state.glasses);
+    applyHabitat();
 
     // Init systems
     initBall();
@@ -1468,6 +1941,8 @@ const HamsterPet = (() => {
     initGlassesDrag();
 
     // Ensure voices are loaded
+
+    initDayNightCycle();
 
     // Welcome message
     setTimeout(() => {
@@ -1486,6 +1961,8 @@ const HamsterPet = (() => {
 
     // Save periodically
     saveInterval = setInterval(saveState, 30000);
+
+    renderBadges();
   }
 
   // Start when DOM ready

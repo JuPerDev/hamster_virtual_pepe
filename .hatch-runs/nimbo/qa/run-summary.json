@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "run_dir": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo",
+  "spritesheet": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/final/spritesheet.webp",
+  "validation": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/final/validation.json",
+  "contact_sheet": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/qa/contact-sheet.png",
+  "review": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/qa/review.json",
+  "package": "/Users/johnparker/.codex/pets/nimbo"
+}

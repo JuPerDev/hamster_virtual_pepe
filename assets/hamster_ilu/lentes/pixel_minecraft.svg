@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .lineThin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M117 75 L117 55 L137 55 L297 55 L317 55 L317 75 L317 235 L317 255 L297 255 L137 255 L117 255 L117 235 Z" fill="#3a3a3a" class="line"/>
+    <path d="M137 85 L137 75 L147 75 L287 75 L297 75 L297 85 L297 225 L297 235 L287 235 L147 235 L137 235 L137 225 Z" fill="#7fdfe4" class="lineThin"/>
+    <path d="M483 75 L483 55 L503 55 L663 55 L683 55 L683 75 L683 235 L683 255 L663 255 L503 255 L483 255 L483 235 Z" fill="#3a3a3a" class="line"/>
+    <path d="M503 85 L503 75 L513 75 L653 75 L663 75 L663 85 L663 225 L663 235 L653 235 L513 235 L503 235 L503 225 Z" fill="#7fdfe4" class="lineThin"/>
+    <rect x="317" y="135" width="166" height="40" fill="#3a3a3a" class="lineThin"/>
+    <rect x="683" y="135" width="28" height="40" fill="#3a3a3a" class="lineThin"/>
+    <rect x="89" y="135" width="28" height="40" fill="#3a3a3a" class="lineThin"/>
+  </g>
+</svg>

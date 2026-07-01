@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="280" viewBox="190 55 520 280">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .thin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M326 230 H596 Q620 230 620 206 Q620 184 596 184 H576 Q573 145 536 145 Q507 145 495 170 Q474 132 430 140 Q394 147 390 184 H338 Q314 184 314 207 Q314 230 326 230 Z" fill="#f7fcff" class="line"/>
+    <path d="M392 190 Q425 172 462 190 M505 188 Q535 172 572 190" fill="none" class="thin" opacity="0.26"/>
+    <circle cx="420" cy="202" r="8" fill="#35110b"/>
+    <circle cx="525" cy="202" r="8" fill="#35110b"/>
+    <path d="M330 232 Q462 256 598 232 L592 248 Q462 274 336 248 Z" fill="#fff5cf" class="line"/>
+  </g>
+</svg>

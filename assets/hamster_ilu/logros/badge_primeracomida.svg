@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <circle cx="40" cy="40" r="34" fill="#f5c542" stroke="#35110b" stroke-width="4"/>
+    <circle cx="40" cy="40" r="28" fill="none" stroke="white" stroke-width="2" stroke-opacity="0.5"/>
+    <text x="40" y="52" font-size="32" text-anchor="middle" fill="white" stroke="#35110b" stroke-width="0.5">🍴</text>
+  </g>
+</svg>

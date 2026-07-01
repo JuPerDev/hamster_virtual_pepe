@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="280" viewBox="200 30 520 280">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .lineThin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+    <g id="daisy">
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin"/>
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin" transform="rotate(60)"/>
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin" transform="rotate(120)"/>
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin" transform="rotate(240)"/>
+      <ellipse cx="0" cy="-13" rx="5" ry="9" fill="#fff6f6" class="lineThin" transform="rotate(300)"/>
+      <circle r="6" fill="#f5c542" class="lineThin"/>
+    </g>
+    <g id="tulip">
+      <path d="M0 0 C -12 -2 -16 -18 -2 -22 C -4 -12 4 -12 2 -22 C 16 -18 12 -2 0 0 Z" fill="#ff6b9d" class="lineThin"/>
+    </g>
+    <g id="leaf">
+      <path d="M0 0 Q -9 -7 -16 -3 Q -8 -1 0 0 Z" fill="#7ad66d" class="lineThin"/>
+    </g>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M275 222 Q 460 178 660 222" fill="none" class="lineThin" opacity="0.55" stroke="#7ad66d"/>
+    <use href="#leaf" transform="translate(330 218) rotate(20)"/>
+    <use href="#leaf" transform="translate(560 218) rotate(200)"/>
+    <use href="#leaf" transform="translate(420 192) rotate(120)"/>
+    <use href="#leaf" transform="translate(385 200) rotate(220)"/>
+    <use href="#daisy" transform="translate(298 218)"/>
+    <use href="#daisy" transform="translate(425 188)"/>
+    <use href="#daisy" transform="translate(578 196)"/>
+    <use href="#daisy" transform="translate(640 220)"/>
+    <use href="#tulip" transform="translate(360 207) rotate(-8)"/>
+    <use href="#tulip" transform="translate(502 197) rotate(12)"/>
+  </g>
+</svg>

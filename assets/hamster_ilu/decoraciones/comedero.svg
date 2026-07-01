@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="200" viewBox="180 50 350 200">
+  <defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/></filter><style>.line{stroke:#35110b;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;}.lineThin{stroke:#35110b;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}</style></defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <ellipse cx="355" cy="180" rx="120" ry="35" fill="#a67c3a" class="line"/>
+    <ellipse cx="355" cy="165" rx="110" ry="25" fill="#c4954a" class="line"/>
+    <circle cx="320" cy="160" r="8" fill="#f5c542" class="lineThin"/>
+    <circle cx="350" cy="155" r="8" fill="#f5c542" class="lineThin"/>
+    <circle cx="380" cy="162" r="8" fill="#f5c542" class="lineThin"/>
+    <circle cx="340" cy="170" r="6" fill="#f5c542" class="lineThin"/>
+    <circle cx="370" cy="170" r="6" fill="#f5c542" class="lineThin"/>
+  </g>
+</svg>

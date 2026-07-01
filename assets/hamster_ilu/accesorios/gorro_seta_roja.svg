@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="190 40 520 300">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .thin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M300 230 C 310 138 383 96 455 96 C 545 96 617 145 630 230 Z" fill="#e93b35" class="line"/>
+    <path d="M332 220 C 344 198 375 184 405 188 C 398 211 374 229 342 232 Z" fill="#fff9ef" class="thin"/>
+    <ellipse cx="455" cy="145" rx="52" ry="38" fill="#fff9ef" class="thin"/>
+    <path d="M560 188 C 588 184 614 199 625 221 C 592 232 565 218 552 196 Z" fill="#fff9ef" class="thin"/>
+    <path d="M322 232 Q 455 256 615 232 L 610 248 Q 455 274 325 248 Z" fill="#fff5cf" class="line"/>
+    <path d="M365 241 Q 455 256 570 241" fill="none" class="thin" opacity="0.28"/>
+  </g>
+</svg>

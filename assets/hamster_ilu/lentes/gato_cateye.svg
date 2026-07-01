@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .line { stroke:#35110b; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+      .lineThin { stroke:#35110b; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g filter="url(#shadow)">
+    <path d="M312 130 C 280 92, 200 84, 130 116 Q 92 140 110 184 Q 158 222 232 214 Q 305 200 312 130 Z" fill="#1a1a1a" class="line"/>
+    <path d="M488 130 C 520 92, 600 84, 670 116 Q 708 140 690 184 Q 642 222 568 214 Q 495 200 488 130 Z" fill="#1a1a1a" class="line"/>
+    <path d="M300 142 C 274 116, 210 110, 156 132 Q 134 152 148 180 Q 186 206 246 200 Q 286 190 300 142 Z" fill="#dfe7f5" class="lineThin"/>
+    <path d="M500 142 C 526 116, 590 110, 644 132 Q 666 152 652 180 Q 614 206 554 200 Q 514 190 500 142 Z" fill="#dfe7f5" class="lineThin"/>
+    <path d="M312 150 Q 400 150 488 150" fill="none" class="line"/>
+    <path d="M89 145 Q 100 158 132 158" fill="none" class="line"/>
+    <path d="M711 145 Q 700 158 668 158" fill="none" class="line"/>
+  </g>
+</svg>

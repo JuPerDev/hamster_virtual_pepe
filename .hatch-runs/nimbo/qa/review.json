@@ -1,0 +1,990 @@
+{
+  "ok": true,
+  "frames_root": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames",
+  "errors": [],
+  "warnings": [
+    "idle used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "running-right used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "running-left used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "waving used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "jumping used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "failed used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "waiting used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "running used extraction method stable-slots; confirm motion playback remains stable and unclipped",
+    "review used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+  ],
+  "rows": [
+    {
+      "state": "idle",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "idle used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19832,
+          "bbox": [
+            35,
+            6,
+            156,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 245
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19696,
+          "bbox": [
+            35,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 222
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19302,
+          "bbox": [
+            36,
+            6,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 213
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19614,
+          "bbox": [
+            35,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 219
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19182,
+          "bbox": [
+            35,
+            7,
+            156,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 239
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/idle/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19463,
+          "bbox": [
+            35,
+            6,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 231
+        }
+      ]
+    },
+    {
+      "state": "running-right",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "running-right used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19922,
+          "bbox": [
+            17,
+            6,
+            174,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 378
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18607,
+          "bbox": [
+            16,
+            6,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 339
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18742,
+          "bbox": [
+            16,
+            6,
+            175,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 396
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19025,
+          "bbox": [
+            15,
+            6,
+            176,
+            192
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 350
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18208,
+          "bbox": [
+            16,
+            5,
+            174,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 374
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18655,
+          "bbox": [
+            16,
+            7,
+            175,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 368
+        },
+        {
+          "index": 6,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17883,
+          "bbox": [
+            21,
+            8,
+            170,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 356
+        },
+        {
+          "index": 7,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-right/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18316,
+          "bbox": [
+            18,
+            12,
+            173,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 355
+        }
+      ]
+    },
+    {
+      "state": "running-left",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "running-left used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19922,
+          "bbox": [
+            17,
+            6,
+            174,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 378
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18628,
+          "bbox": [
+            16,
+            6,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 355
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18745,
+          "bbox": [
+            16,
+            6,
+            175,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 365
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19025,
+          "bbox": [
+            15,
+            6,
+            176,
+            192
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 350
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18229,
+          "bbox": [
+            16,
+            5,
+            174,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 383
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18655,
+          "bbox": [
+            16,
+            7,
+            175,
+            198
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 368
+        },
+        {
+          "index": 6,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17856,
+          "bbox": [
+            21,
+            8,
+            170,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 336
+        },
+        {
+          "index": 7,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running-left/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18330,
+          "bbox": [
+            19,
+            12,
+            174,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 355
+        }
+      ]
+    },
+    {
+      "state": "waving",
+      "expected_frames": 4,
+      "actual_frames": 4,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "waving used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waving/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18931,
+          "bbox": [
+            36,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 183
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waving/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19784,
+          "bbox": [
+            29,
+            5,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 216
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waving/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19047,
+          "bbox": [
+            28,
+            8,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 218
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waving/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18922,
+          "bbox": [
+            36,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 200
+        }
+      ]
+    },
+    {
+      "state": "jumping",
+      "expected_frames": 5,
+      "actual_frames": 5,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "jumping used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/jumping/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 10062,
+          "bbox": [
+            48,
+            68,
+            143,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 116
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/jumping/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 10778,
+          "bbox": [
+            47,
+            23,
+            143,
+            178
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 130
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/jumping/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 11013,
+          "bbox": [
+            37,
+            5,
+            154,
+            148
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 125
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/jumping/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 10913,
+          "bbox": [
+            37,
+            45,
+            154,
+            190
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 140
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/jumping/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 10029,
+          "bbox": [
+            49,
+            68,
+            142,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 117
+        }
+      ]
+    },
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "failed used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 21052,
+          "bbox": [
+            29,
+            5,
+            162,
+            199
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 285
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18444,
+          "bbox": [
+            25,
+            25,
+            166,
+            199
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 250
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15521,
+          "bbox": [
+            23,
+            53,
+            168,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 218
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15756,
+          "bbox": [
+            29,
+            49,
+            162,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 231
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 12357,
+          "bbox": [
+            17,
+            92,
+            174,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 191
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20070,
+          "bbox": [
+            29,
+            8,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 264
+        },
+        {
+          "index": 6,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18811,
+          "bbox": [
+            25,
+            11,
+            166,
+            201
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 244
+        },
+        {
+          "index": 7,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/failed/07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15430,
+          "bbox": [
+            25,
+            51,
+            166,
+            200
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 226
+        }
+      ]
+    },
+    {
+      "state": "waiting",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "waiting used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18687,
+          "bbox": [
+            28,
+            6,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 334
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16969,
+          "bbox": [
+            39,
+            5,
+            152,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 305
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16232,
+          "bbox": [
+            41,
+            17,
+            150,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 268
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16672,
+          "bbox": [
+            36,
+            13,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 284
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16365,
+          "bbox": [
+            28,
+            15,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 295
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/waiting/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15668,
+          "bbox": [
+            40,
+            14,
+            151,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 252
+        }
+      ]
+    },
+    {
+      "state": "running",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "running used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19298,
+          "bbox": [
+            31,
+            6,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 250
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19668,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 282
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19518,
+          "bbox": [
+            28,
+            11,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 273
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19069,
+          "bbox": [
+            30,
+            12,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 258
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18950,
+          "bbox": [
+            31,
+            11,
+            161,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 273
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/running/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18895,
+          "bbox": [
+            31,
+            10,
+            161,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 246
+        }
+      ]
+    },
+    {
+      "state": "review",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "stable-slots",
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "review used extraction method stable-slots; confirm motion playback remains stable and unclipped"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18600,
+          "bbox": [
+            34,
+            8,
+            158,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 242
+        },
+        {
+          "index": 1,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18698,
+          "bbox": [
+            34,
+            5,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 247
+        },
+        {
+          "index": 2,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18293,
+          "bbox": [
+            35,
+            8,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 267
+        },
+        {
+          "index": 3,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18957,
+          "bbox": [
+            34,
+            11,
+            158,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 311
+        },
+        {
+          "index": 4,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18344,
+          "bbox": [
+            35,
+            11,
+            156,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 275
+        },
+        {
+          "index": 5,
+          "file": "/Users/johnparker/Documents/PROYECTOS/hamster-pet/.hatch-runs/nimbo/frames/review/05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18241,
+          "bbox": [
+            35,
+            14,
+            156,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 256
+        }
+      ]
+    }
+  ]
+}

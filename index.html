@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
   <title>🐹 Mi Hámster Virtual</title>
-  <link rel="stylesheet" href="style.css?v=20260622-3">
+  <link rel="stylesheet" href="style.css?v=20260701-mobile-pet-scale">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
 </head>
 <body>
@@ -43,6 +43,9 @@
 
     <!-- Hamster Scene -->
     <div class="hamster-scene">
+      <div class="habitat-wall" id="habitat-wall"></div>
+      <div class="habitat-floor" id="habitat-floor"></div>
+      <div class="habitat-deco" id="habitat-deco"></div>
       <div class="hamster idle" id="hamster" role="button" tabindex="0" aria-label="Hámster Pepe — haz clic para acariciarlo">
         <!-- Body -->
         <div class="hamster-body">
@@ -66,7 +69,11 @@
       <div class="ball hint" id="throwable-ball" style="display: none; right: 10px; bottom: 30px;">
         <span class="ball-label">¡Lánzame!</span>
       </div>
+      <div class="yarn-toy hint" id="yarn-toy" style="display: none;"></div>
     </div>
+
+    <!-- Badge Wall (behind hamster) -->
+    <div class="badge-wall" id="badge-wall"></div>
 
     <!-- Food Tray (sits below Pepe, not over his body) -->
     <div class="food-tray" id="food-tray">
@@ -151,6 +158,26 @@
         <span class="btn-icon">🕶️</span>
         <span class="btn-label">Lentes</span>
       </button>
+      <button class="action-btn wheel" id="btn-wheel">
+        <span class="btn-icon">🏃</span>
+        <span class="btn-label">Rueda</span>
+      </button>
+      <button class="action-btn dance" id="btn-dance">
+        <span class="btn-icon">💃</span>
+        <span class="btn-label">Bailar</span>
+      </button>
+      <button class="action-btn brush" id="btn-brush">
+        <span class="btn-icon">🪮</span>
+        <span class="btn-label">Cepillar</span>
+      </button>
+      <button class="action-btn yarn" id="btn-yarn">
+        <span class="btn-icon">🧶</span>
+        <span class="btn-label">Lana</span>
+      </button>
+      <button class="action-btn habitat" id="btn-habitat">
+        <span class="btn-icon">🏠</span>
+        <span class="btn-label">Habitat</span>
+      </button>
     </div>
 
     </main>
@@ -184,6 +211,102 @@
           <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_cowboy.svg" aria-label="Sombrero de cowboy">
             <img src="assets/hamster_ilu/accesorios/sombrero_cowboy.svg" alt="Sombrero de cowboy" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/mono_rosa.svg" aria-label="Moño rosa">
+            <img src="assets/hamster_ilu/accesorios/mono_rosa.svg" alt="Moño rosa" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/corona_flores.svg" aria-label="Corona de flores">
+            <img src="assets/hamster_ilu/accesorios/corona_flores.svg" alt="Corona de flores" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/orejas_gato.svg" aria-label="Orejas de gato">
+            <img src="assets/hamster_ilu/accesorios/orejas_gato.svg" alt="Orejas de gato" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/tiara_princesa.svg" aria-label="Tiara de princesa">
+            <img src="assets/hamster_ilu/accesorios/tiara_princesa.svg" alt="Tiara de princesa" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_cumphenos.svg" aria-label="Sombrero de cumpleaños">
+            <img src="assets/hamster_ilu/accesorios/sombrero_cumphenos.svg" alt="Sombrero de cumpleaños" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_arcoiris.svg" aria-label="Gorro arcoíris">
+            <img src="assets/hamster_ilu/accesorios/gorro_arcoiris.svg" alt="Gorro arcoíris" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/orejas_conejo.svg" aria-label="Orejas de conejo">
+            <img src="assets/hamster_ilu/accesorios/orejas_conejo.svg" alt="Orejas de conejo" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/sombrero_bruja_morada.svg" aria-label="Sombrero de bruja morada">
+            <img src="assets/hamster_ilu/accesorios/sombrero_bruja_morada.svg" alt="Sombrero de bruja morada" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_link.svg" aria-label="Gorro de Link">
+            <img src="assets/hamster_ilu/accesorios/gorro_link.svg" alt="Gorro de Link" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_mario.svg" aria-label="Gorro de Mario">
+            <img src="assets/hamster_ilu/accesorios/gorro_mario.svg" alt="Gorro de Mario" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_gengar.svg" aria-label="Gorro de Gengar">
+            <img src="assets/hamster_ilu/accesorios/gorro_gengar.svg" alt="Gorro de Gengar" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_kirby.svg" aria-label="Gorro de Kirby">
+            <img src="assets/hamster_ilu/accesorios/gorro_kirby.svg" alt="Gorro de Kirby" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_seta_roja.svg" aria-label="Gorro seta roja">
+            <img src="assets/hamster_ilu/accesorios/gorro_seta_roja.svg" alt="Gorro seta roja" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_seta_verde.svg" aria-label="Gorro seta verde">
+            <img src="assets/hamster_ilu/accesorios/gorro_seta_verde.svg" alt="Gorro seta verde" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_bloque_sorpresa.svg" aria-label="Gorro bloque sorpresa">
+            <img src="assets/hamster_ilu/accesorios/gorro_bloque_sorpresa.svg" alt="Gorro bloque sorpresa" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_tuberia_verde.svg" aria-label="Gorro tubería verde">
+            <img src="assets/hamster_ilu/accesorios/gorro_tuberia_verde.svg" alt="Gorro tubería verde" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/casco_kart_rojo.svg" aria-label="Casco kart rojo">
+            <img src="assets/hamster_ilu/accesorios/casco_kart_rojo.svg" alt="Casco kart rojo" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/casco_kart_azul.svg" aria-label="Casco kart azul">
+            <img src="assets/hamster_ilu/accesorios/casco_kart_azul.svg" alt="Casco kart azul" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_flor_fuego.svg" aria-label="Gorro flor fuego">
+            <img src="assets/hamster_ilu/accesorios/gorro_flor_fuego.svg" alt="Gorro flor fuego" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_hoja_aventura.svg" aria-label="Gorro hoja aventura">
+            <img src="assets/hamster_ilu/accesorios/gorro_hoja_aventura.svg" alt="Gorro hoja aventura" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_caparazon_verde.svg" aria-label="Gorro caparazón verde">
+            <img src="assets/hamster_ilu/accesorios/gorro_caparazon_verde.svg" alt="Gorro caparazón verde" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_caparazon_azul.svg" aria-label="Gorro caparazón azul">
+            <img src="assets/hamster_ilu/accesorios/gorro_caparazon_azul.svg" alt="Gorro caparazón azul" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_nube_pixel.svg" aria-label="Gorro nube pixel">
+            <img src="assets/hamster_ilu/accesorios/gorro_nube_pixel.svg" alt="Gorro nube pixel" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_fantasma_pixel.svg" aria-label="Gorro fantasma pixel">
+            <img src="assets/hamster_ilu/accesorios/gorro_fantasma_pixel.svg" alt="Gorro fantasma pixel" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_bomba_retro.svg" aria-label="Gorro bomba retro">
+            <img src="assets/hamster_ilu/accesorios/gorro_bomba_retro.svg" alt="Gorro bomba retro" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_estrella_brillante.svg" aria-label="Gorro estrella brillante">
+            <img src="assets/hamster_ilu/accesorios/gorro_estrella_brillante.svg" alt="Gorro estrella brillante" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/corona_castillo_pixel.svg" aria-label="Corona castillo pixel">
+            <img src="assets/hamster_ilu/accesorios/corona_castillo_pixel.svg" alt="Corona castillo pixel" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_mando_retro.svg" aria-label="Gorro mando retro">
+            <img src="assets/hamster_ilu/accesorios/gorro_mando_retro.svg" alt="Gorro mando retro" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_tinta_neon.svg" aria-label="Gorro tinta neón">
+            <img src="assets/hamster_ilu/accesorios/gorro_tinta_neon.svg" alt="Gorro tinta neón" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_cristal_espacial.svg" aria-label="Gorro cristal espacial">
+            <img src="assets/hamster_ilu/accesorios/gorro_cristal_espacial.svg" alt="Gorro cristal espacial" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_dino_verde.svg" aria-label="Gorro dino verde">
+            <img src="assets/hamster_ilu/accesorios/gorro_dino_verde.svg" alt="Gorro dino verde" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="hat-option" data-hat="assets/hamster_ilu/accesorios/gorro_piloto_globo.svg" aria-label="Gorro piloto globo">
+            <img src="assets/hamster_ilu/accesorios/gorro_piloto_globo.svg" alt="Gorro piloto globo" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
         </div>
 
         <div class="modal-actions">
@@ -212,6 +335,27 @@
           <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/rojos.svg" aria-label="Lentes rojos">
             <img src="assets/hamster_ilu/lentes/rojos.svg" alt="Lentes rojos" style="width: 50px; height: 50px; pointer-events: none;">
           </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/sol_dorados.svg" aria-label="Lentes de sol dorados">
+            <img src="assets/hamster_ilu/lentes/sol_dorados.svg" alt="Lentes de sol dorados" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/corazon.svg" aria-label="Lentes de corazón">
+            <img src="assets/hamster_ilu/lentes/corazon.svg" alt="Lentes de corazón" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/nerd_grandes.svg" aria-label="Lentes nerd grandes">
+            <img src="assets/hamster_ilu/lentes/nerd_grandes.svg" alt="Lentes nerd grandes" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/gato_cateye.svg" aria-label="Lentes de gato cat-eye">
+            <img src="assets/hamster_ilu/lentes/gato_cateye.svg" alt="Lentes de gato cat-eye" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/mariposa.svg" aria-label="Lentes de mariposa">
+            <img src="assets/hamster_ilu/lentes/mariposa.svg" alt="Lentes de mariposa" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/retro_redondos.svg" aria-label="Lentes retro redondos">
+            <img src="assets/hamster_ilu/lentes/retro_redondos.svg" alt="Lentes retro redondos" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
+          <button class="glasses-option" data-glasses="assets/hamster_ilu/lentes/pixel_minecraft.svg" aria-label="Lentes pixel de Minecraft">
+            <img src="assets/hamster_ilu/lentes/pixel_minecraft.svg" alt="Lentes pixel de Minecraft" style="width: 50px; height: 50px; pointer-events: none;">
+          </button>
         </div>
 
         <div class="modal-actions">
@@ -220,6 +364,102 @@
       </div>
     </div>
 
-  <script src="script.js?v=20260622-3"></script>
+    <!-- Habitat Modal -->
+    <div class="modal-overlay" id="habitat-modal">
+      <div class="modal-card habitat-card">
+        <h2>🏠 El Habitat de Pepe</h2>
+        <p>¡Decorá el hogar de tu hámster!</p>
+
+        <h3>🎨 Pared</h3>
+        <div class="habitat-grid">
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="" aria-label="Sin pared">🚫</button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_rosa.svg" aria-label="Pared rosa">
+            <img src="assets/hamster_ilu/habitat/pared_rosa.svg" alt="Pared rosa" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_celeste.svg" aria-label="Pared celeste">
+            <img src="assets/hamster_ilu/habitat/pared_celeste.svg" alt="Pared celeste" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_lavanda.svg" aria-label="Pared lavanda">
+            <img src="assets/hamster_ilu/habitat/pared_lavanda.svg" alt="Pared lavanda" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_ladrillo.svg" aria-label="Pared de ladrillo">
+            <img src="assets/hamster_ilu/habitat/pared_ladrillo.svg" alt="Pared de ladrillo" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_flores.svg" aria-label="Pared de flores">
+            <img src="assets/hamster_ilu/habitat/pared_flores.svg" alt="Pared de flores" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_estrellas.svg" aria-label="Pared de estrellas">
+            <img src="assets/hamster_ilu/habitat/pared_estrellas.svg" alt="Pared de estrellas" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_arcoiris.svg" aria-label="Pared de arcoíris">
+            <img src="assets/hamster_ilu/habitat/pared_arcoiris.svg" alt="Pared de arcoíris" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_gatitos.svg" aria-label="Pared de gatitos">
+            <img src="assets/hamster_ilu/habitat/pared_gatitos.svg" alt="Pared de gatitos" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="wall" data-habitat-value="assets/hamster_ilu/habitat/pared_montanas.svg" aria-label="Pared de montañas">
+            <img src="assets/hamster_ilu/habitat/pared_montanas.svg" alt="Pared de montañas" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+        </div>
+
+        <h3>📐 Piso</h3>
+        <div class="habitat-grid">
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="" aria-label="Sin piso">🚫</button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_madera.svg" aria-label="Piso de madera">
+            <img src="assets/hamster_ilu/habitat/piso_madera.svg" alt="Piso de madera" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_pasto.svg" aria-label="Piso de pasto">
+            <img src="assets/hamster_ilu/habitat/piso_pasto.svg" alt="Piso de pasto" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_azulejo.svg" aria-label="Piso de azulejo">
+            <img src="assets/hamster_ilu/habitat/piso_azulejo.svg" alt="Piso de azulejo" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_marmol.svg" aria-label="Piso de mármol">
+            <img src="assets/hamster_ilu/habitat/piso_marmol.svg" alt="Piso de mármol" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_alfombra.svg" aria-label="Alfombra rosa">
+            <img src="assets/hamster_ilu/habitat/piso_alfombra.svg" alt="Alfombra rosa" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_baldosas.svg" aria-label="Baldosas de tierra">
+            <img src="assets/hamster_ilu/habitat/piso_baldosas.svg" alt="Baldosas de tierra" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_arena.svg" aria-label="Piso de arena">
+            <img src="assets/hamster_ilu/habitat/piso_arena.svg" alt="Piso de arena" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+          <button class="habitat-option" data-habitat-type="floor" data-habitat-value="assets/hamster_ilu/habitat/piso_cuadritos.svg" aria-label="Piso de cuadritos">
+            <img src="assets/hamster_ilu/habitat/piso_cuadritos.svg" alt="Piso de cuadritos" style="width: 40px; height: 40px; pointer-events: none; border-radius: 6px;">
+          </button>
+        </div>
+
+        <h3>🪑 Decoraciones</h3>
+        <div class="habitat-grid">
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="" aria-label="Sin decoración">🚫</button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/cama_hamster.svg" aria-label="Cama">
+            <img src="assets/hamster_ilu/decoraciones/cama_hamster.svg" alt="Cama" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/casa_madera.svg" aria-label="Casa de madera">
+            <img src="assets/hamster_ilu/decoraciones/casa_madera.svg" alt="Casa de madera" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/planta.svg" aria-label="Planta">
+            <img src="assets/hamster_ilu/decoraciones/planta.svg" alt="Planta" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/tunel.svg" aria-label="Túnel">
+            <img src="assets/hamster_ilu/decoraciones/tunel.svg" alt="Túnel" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/comedero.svg" aria-label="Comedero">
+            <img src="assets/hamster_ilu/decoraciones/comedero.svg" alt="Comedero" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+          <button class="habitat-option" data-habitat-type="deco" data-habitat-value="assets/hamster_ilu/decoraciones/bebedero.svg" aria-label="Bebedero">
+            <img src="assets/hamster_ilu/decoraciones/bebedero.svg" alt="Bebedero" style="width: 40px; height: 40px; pointer-events: none;">
+          </button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="modal-btn secondary" id="btn-habitat-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+  <script src="script.js?v=20260622-7"></script>
 </body>
 </html>
